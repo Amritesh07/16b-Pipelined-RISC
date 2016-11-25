@@ -16,7 +16,6 @@ port(
 	Aout: out AddressOutType);
 end entity AddressBlock;
 
-
 architecture arch of AddressBlock is
 	signal AoutTemp: AddressOutType;
 begin
