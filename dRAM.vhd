@@ -37,7 +37,7 @@ entity dRAM is
     mem_loaded: out bit;
     ai_mem: in std_logic_vector(0 to 15);
     di_mem: in std_logic_vector(15 downto 0);
-    do_mem: in std_logic_vector(15 downto 0)
+    do_mem: out std_logic_vector(15 downto 0)
 
 
   );
