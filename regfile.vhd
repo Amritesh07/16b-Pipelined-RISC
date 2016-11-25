@@ -23,10 +23,7 @@ ENTITY regfile is port(
 	do6rf  : out std_logic_vector(15 downto 0);
 	do7rf  : out std_logic_vector(15 downto 0);
 
-	a1rf : in std_logic_vector(2 downto 0);
-	a2rf : in std_logic_vector(2 downto 0);
-	d1rf : out std_logic_vector(15 downto 0);
-	d2rf : out std_logic_vector(15 downto 0);
+
 	a3rf : in std_logic_vector(2 downto 0);
 	d3rf : in std_logic_vector(15 downto 0);
 	d4rf : in std_logic_vector(15 downto 0);
@@ -56,8 +53,7 @@ function CONV_INTEGER(x: std_logic_vector) return integer is
       return(ret_val);
   end CONV_INTEGER;
 BEGIN
-	d1rf <= RF(CONV_INTEGER(a1rf));
-	d2rf <= RF(CONV_INTEGER(a2rf));
+
 	do7rf <= RF(7);
 	do6rf <= RF(6);
 	do5rf <= RF(5);
