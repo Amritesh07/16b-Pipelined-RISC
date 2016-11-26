@@ -199,8 +199,24 @@ component InstructionDecoder is
 port(
 	 I16: in std_logic_vector(15 downto 0);
 	 RF: out RegFileData;
-	 DRAM: out DramData
+	 DRAM: out DramData;
+	 A1,A2: out std_logic_vector(2 downto 0);
+	 M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);		
+	 M3_sel,M8_sel: out std_logic_vector(1 downto 0);
+	 M2_sel,M4_sel,M5_sel: out std_logic_vector(2 downto 0)
+	 );
+	
+component Adder is 
+port(
+	I1,I2: in std_logic_vector(15 downto 0);
+	O: out std_logic_vector(15 downto 0)
 	);
+end component;
+
+component isEqual is
+port(I1,I2: in std_logic_vector(15 downto 0);
+		O: out std_logic);
+end component;
 end component;
 --==========
 end package;

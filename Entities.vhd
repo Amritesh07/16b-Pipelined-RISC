@@ -1,32 +1,5 @@
 
 ------------------------------COMPONENTS------------------------------
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
-
-entity Mux1 is
-generic (bits:integer);
-port( I0,I1:in std_logic_vector(bits-1 downto 0);
-		O : OUT STD_logic_vector(bits-1 DOWnto 0);
-		Sel: in std_logic);
-end entity mux1;
-architecture dataflow of mux1 is
-begin
-O<=I1 when sel ='1' else I0;
-end dataflow;
----------------------------------------------------------
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
-entity Mux2 is
-generic (bits:integer);
-port( I0,I1,I2,I3:in std_logic_vector(bits-1 downto 0);
-		O : OUT STD_logic_vector(bits-1 DOWnto 0);
-		Sel: in std_logic_vector(1 downto 0));
-end entity mux2;
-architecture dataflow of mux2 is
-begin
-O<= I0 when Sel="00" else I1 when sel="01" else I2 when sel="10" else I3 when sel="11";
-end dataflow;
--------------------------------------------------------------
 
 
 -------------------------------------------------------------
@@ -127,3 +100,17 @@ architecture Dataflow of Adder is
 begin
 	O<= std_logic_vector(unsigned(I1)+unsigned(I2));
 end dataflow;
+
+---------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+entity isEqual is
+port(I1,I2: in std_logic_vector(15 downto 0);
+		O: out std_logic);
+end entity isEqual;
+
+architecture arch of isEqual is
+begin
+	O<='1' when I1=I2 else '0';
+end arch;
