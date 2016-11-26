@@ -24,8 +24,7 @@ port(
 	 I16: in std_logic_vector(15 downto 0);
 	 RF: out RegFileData;
 	 DRAM: out DramData;
-	 A1,A2: out std_logic_vector(2 downto 0);
-	 
+	 A1,A2: out std_logic_vector(2 downto 0)
 	 	);
 end entity;
 
