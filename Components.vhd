@@ -99,7 +99,7 @@ component iROM is
 	clock   : in  std_logic;
 	load_mem: in std_logic;
 	mem_loaded : out std_logic;
-	address : in  std_logic_vector(0 to 15);
+	address : in  std_logic_vector(15 downto 0);
 	dataout : out std_logic_vector(15 downto 0)
   );
 end component;
@@ -116,7 +116,7 @@ component dRAM is
 	writeEN: in std_logic;
 	load_mem: in std_logic;
 	mem_loaded: out std_logic;
-	ai_mem: in std_logic_vector(0 to 15);
+	ai_mem: in std_logic_vector(15 downto 0);
 	di_mem: in std_logic_vector(15 downto 0);
 	do_mem: out std_logic_vector(15 downto 0)
   );
@@ -172,13 +172,16 @@ end component;
 
 component InstructionDecoder is
 port(
-	 I16: in std_logic_vector(15 downto 0);
-	 RF: out RegFileCtrl;
-	 DRAM: out dramCtrl;
-	 A1,A2: out std_logic_vector(2 downto 0);
-	 M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);
-	 M3_sel,M8_sel: out std_logic_vector(1 downto 0);
-	 M2_sel,M4_sel,M5_sel: out std_logic_vector(2 downto 0)
+I16: in std_logic_vector(15 downto 0);
+RF: out RegFileCtrl;
+DRAM: out dramCtrl;
+M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);
+M3_sel: out std_logic_vector(1 downto 0);
+M4_sel,M5_sel: out std_logic_vector(2 downto 0);
+ALUsel: out std_logic_vector(0 downto 0);
+PCwrite: out std_logic;
+carryWrite: out std_logic;
+zeroWrite:out std_logic
 	 );
 end component;
 
