@@ -1,14 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
-PACKAGE matrixType IS
-        TYPE matrix16 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(15 downto 0);
-        TYPE matrix3 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(2 downto 0);
-END PACKAGE matrixType;
-
-library ieee;
-use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.matrixType.all;
+use work.components.all;
 library std;
 use std.textio.all;
 
@@ -66,7 +59,6 @@ begin
           var_pipeline_reg_enable(0) := '0';            -- stall the IF stage
           var_pipeline_reg_enable(1) := '0';            -- stall the ID stage
           var_pc_en:='0';
-          --var_pipeline_reg_enable(2) := '0';            -- stall the RR stage
       end if;
       ------
       PC_var:=PCplus1;
@@ -85,7 +77,7 @@ begin
 
       elsif ( regDest(2)="111" and Instruction_pipeline(2)(15 downto 14)="00"
             and Instruction_pipeline(2)(15 downto 14) /= "11"  ) then----  R type
-            
+
           if (( Instruction_pipeline(2)(1)='1' and carry_ex='1') or ( Instruction_pipeline(2)(0)='1' and zero_ex='1')
                 or (Instruction_pipeline(2)(1 downto 0)="00")) then
               var_instr_out(2)(15 downto 12) := "1111";
