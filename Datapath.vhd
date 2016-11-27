@@ -43,7 +43,7 @@ signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4);
 signal stallflag_sig: std_logic;
 -- Multiplexer related signals
 signal M1_out_sig, M3_out_sig, M4_out_sig, M5_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
-signal M1_sel_sig: std_logic;
+signal M1_sel_sig: std_logic_vector(0 downto 0);
 -- condition code register related signals
 signal ALU_C_sig,ALU_Z_sig: std_logic;
 -- carry and zero register
@@ -51,10 +51,10 @@ signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
 -- Miscellaneous signals
 signal SE9_out: std_logic_vector(15 downto 0);
 signal isEqualFlag, LW_zero: std_logic;
-signal mem_loaded_sig, load_mem, load_I_mem_sig, I_mem_loaded_sig: std_logic;
+signal mem_loaded_sig, load_mem_sig, load_I_mem_sig, I_mem_loaded_sig: std_logic;
 signal HighZ16: std_logic_vector(15 downto 0):="ZZZZZZZZZZZZZZZZ";
 signal PC_write_sig, RF_write_sig: std_logic;
-signal regFileData_sig : matrix16(7 downto 0);
+signal regFileData_sig : matrix16(6 downto 0);
 begin
 ----------- Pipeline Register
 IF_ID : IF_ID_reg port map(Din => IF_ID_in_sig, Dout => IF_ID_out_sig, clk => clk, enable => pipeline_enable_sig(0));
@@ -159,7 +159,7 @@ FLogic: FwdCntrl port map(padder(0) => RR_EX_out_sig.Padder,	padder(1) => EX_MEM
 													mem_out(0) => MEM_WB_in_sig.mem_out,   -- 0 - mem , 1- writeback (single output)
 													mem_out(1) => MEM_WB_out_sig.mem_out,
 													Lm_sel(0) =>RR_EX_out_sig.DRAM.mem_ctr, Lm_sel(1) => EX_MEM_out_sig.DRAM.mem_ctr ,Lm_sel(2) => MEM_WB_out_sig.RF.logic_in ,   --0 - execute , 1- mem, 2- writeback (single output)
-													regFiledata(6 downto 0)=> regFileData_sig,-- regFiledata[7] has to be connected to PC brought by the pipeline register
+													regFiledata(6 downto 0)=> regFileData_sig(6 downto 0),-- regFiledata[7] has to be connected to PC brought by the pipeline register
 													regFiledata(7)=> ID_RR_out_sig.PC,
 													carry(0)=>EX_MEM_in_sig.C_old,carry(1)=>EX_MEM_out_sig.C_old, carry(2)=> MEM_WB_out_sig.C_old,
 													zero(0)=>LW_zero,zero(1)=> EX_MEM_out_sig.z_old,zero(2)=>MEM_WB_in_sig.z_old,zero(3)=>MEM_WB_out_sig.z_old,
@@ -183,12 +183,12 @@ isNull: isEqual port map(I1=>MEM_WB_in_sig.mem_out, I2=>null16, O => LW_zero);
 Add1 : Add_1 port map(I => IF_ID_in_sig.PC, O => IF_ID_in_sig.PC_1);
 
 ------------------------------ we need to re look at the mux select encodings ---------------------
-M1: GenericMux generic map(seln = 1) port map(I(0) => SE9_out, I(1) => ID_RR_in_sig.SE6, S => M1_sel_sig, O => M1_out_sig);
-M3: GenericMux generic map(seln = 2) port map(I(0) => MEM_WB_out_sig.Padder, I(1) => MEM_WB_out_sig.ALU_OUT, I(2) => MEM_WB_out_sig.mem_out, I(3) => MEM_WB_out_sig.PC_1, S => MEM_WB_out_sig.M3_sel, O => M3_out_sig);
-M4: GenericMux generic map(seln = 3) port map(I => RR_EX_in_sig.D_multiple, S => ID_RR_out_sig.A1, O => RR_EX_in_sig.D1);
-M5: GenericMux generic map(seln = 3) port map(I => RR_EX_in_sig.D_multiple, S => ID_RR_out_sig.A2, O => RR_EX_in_sig.D2);
-M6: GenericMux generic map(seln = 1) port map(I(0) => RR_EX_out_sig.D1, I(1) => RR_EX_out_sig.SE6, S => RR_EX_out_sig.M6_sel, O => M6_out_sig);
-M7: GenericMux generic map(seln = 1) port map(I(0) => RR_EX_out_sig.D2, I(1) => RR_EX_out_sig.SE6, S => RR_EX_out_sig.M7_sel, O => M7_out_sig);
+M1: GenericMux generic map(seln => 1) port map(I(0) => SE9_out, I(1) => ID_RR_in_sig.SE6, S => M1_sel_sig, O => M1_out_sig);
+M3: GenericMux generic map(seln => 2) port map(I(0) => MEM_WB_out_sig.Padder, I(1) => MEM_WB_out_sig.ALU_OUT, I(2) => MEM_WB_out_sig.mem_out, I(3) => MEM_WB_out_sig.PC_1, S => MEM_WB_out_sig.M3_sel, O => M3_out_sig);
+M4: GenericMux generic map(seln => 3) port map(I => RR_EX_in_sig.D_multiple, S => ID_RR_out_sig.A1, O => RR_EX_in_sig.D1);
+M5: GenericMux generic map(seln => 3) port map(I => RR_EX_in_sig.D_multiple, S => ID_RR_out_sig.A2, O => RR_EX_in_sig.D2);
+M6: GenericMux generic map(seln => 1) port map(I(0) => RR_EX_out_sig.D1, I(1) => RR_EX_out_sig.SE6, S => RR_EX_out_sig.M6_sel, O => M6_out_sig);
+M7: GenericMux generic map(seln => 1) port map(I(0) => RR_EX_out_sig.D2, I(1) => RR_EX_out_sig.SE6, S => RR_EX_out_sig.M7_sel, O => M7_out_sig);
 
 
 Adder1: Adder port map(I1 => IF_ID_out_sig.PC, I2 => M1_out_sig, O => ID_RR_in_sig.PC_Imm6);

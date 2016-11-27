@@ -21,7 +21,6 @@ use IEEE.Numeric_Std.all;
 package components is
 --======================
 
-type matrix is array(natural range <>) of std_logic_vector(15 downto 0);
 TYPE matrix16 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(15 downto 0);
 TYPE matrix3 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(2 downto 0);
 TYPE matrix8 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(7 downto 0);
@@ -29,9 +28,9 @@ type AddressOutType_bit is array(0 to 7) of bit_vector(15 downto 0);
 --type matrix16(7 downto 0)_bit is array(0 to 7) of bit_vector(15 downto 0);
 type dramCtrl is Record
 		mem_ctr : std_logic_vector(7 downto 0);
-		pathway : bit;
-		writeEN : bit;
-		load_mem : bit;
+		pathway : std_logic;
+		writeEN : std_logic;
+		load_mem : std_logic;
 	 end Record;
 type RegFileCtrl is Record
 	 		a3rf :  std_logic_vector(2 downto 0);
@@ -39,6 +38,7 @@ type RegFileCtrl is Record
 	 		rf_write:  std_logic;
 	 		r7_write :  std_logic;
 	 		logic_in :  std_logic_vector(7 downto 0);
+			CarryEn: std_logic;
 	 	end record;
 component DataRegister is
 	generic (data_width:integer);
@@ -128,7 +128,7 @@ component GenericMux is
 
         generic (dataWidth : positive := 16;
 						seln: positive := 2);
-        port (  I : in matrix(2**seln - 1 downto 0);
+        port (  I : in matrix16(2**seln - 1 downto 0);
                 S : in std_logic_vector(seln - 1 downto 0);
                 O : out std_logic_vector(dataWidth - 1 downto 0));
 end component;
@@ -143,17 +143,18 @@ component FwdCntrl is
 port (
 padder:       in matrix16(2 downto 0);       -- 0 - execute  1 - mem -- 2- for writeback for all
 PC_1:         in matrix16(2 downto 0);
-aluop:        in matrix16(2 downto 0);
+aluop:        in matrix16(2 downto 0);    -- alu output
 regDest:      in matrix3(2 downto 0) ;
 Iword:        in matrix16(2 downto 0);
 Lm_mem:       in matrix16(7 downto 0);  -- mem stage
 Lm_wb:        in matrix16(7 downto 0);   -- writeback stage ()
 mem_out:      in matrix16(1 downto 0);   -- 0 - mem , 1- writeback (single output)
-Lm_sel:       in matrix16(1 downto 0);    --0 - mem , 1- writeback (single output)
-RegFileCtrl:  in matrix16(7 downto 0);  -- RegFileCtrl[7] has to be connected to PC brought by the pipeline register
-carry :       in std_logic_vector(2 downto 0);
-zero:         in std_logic_vector(2 downto 0);
-regDataout:   out matrix16(7 downto 0)
+Lm_sel:       in matrix8(2 downto 0);    --0 - execute , 1- mem, 2- writeback (single output)
+regFiledata:  in matrix16(7 downto 0);  -- regFiledata[7] has to be connected to PC brought by the pipeline register
+carry :       in std_logic_vector(2 downto 0);   -- 0 - execute  1 - mem -- 2- for writeback
+zero:         in std_logic_vector(3 downto 0); -- 0- LW_zero_signal, 1- alu_zero_sig, 2-zero_flag, 3- writeback
+regDataout:   out matrix16(7 downto 0);
+stallflag:    out std_logic
          ) ;
 end component ;
 
