@@ -1,15 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
-PACKAGE matrixType IS
-        TYPE matrix16 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(15 downto 0);
-        TYPE matrix3 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(2 downto 0);
-        TYPE matrix8 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(7 downto 0);
-END PACKAGE matrixType;
-
-library ieee;
-use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.matrixType.all;
+use work.components.all;
 library std;
 use std.textio.all;
 
@@ -31,8 +23,8 @@ Lm_wb:        in matrix16(7 downto 0);   -- writeback stage ()
 mem_out:      in matrix16(1 downto 0);   -- 0 - mem , 1- writeback (single output)
 Lm_sel:       in matrix8(2 downto 0);    --0 - execute , 1- mem, 2- writeback (single output)
 regFiledata:  in matrix16(7 downto 0);  -- regFiledata[7] has to be connected to PC brought by the pipeline register
-carry :       in std_logic_vector(2 downto 0);
-zero:         in std_logic_vector(2 downto 0);
+carry :       in std_logic_vector(2 downto 0);   -- 0 - execute  1 - mem -- 2- for writeback
+zero:         in std_logic_vector(3 downto 0); -- 0- LW_zero_signal, 1- alu_zero_sig, 2-zero_flag, 3- writeback
 regDataout:   out matrix16(7 downto 0);
 stallflag:    out std_logic
          ) ;
@@ -71,7 +63,10 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                                 else
                                       if ( Iword(0)(1)='1' and carry(0)='1' ) then
                                         Reg0 := aluop(0);
-                                      elsif (Iword(0)(0)='1' and zero(0)='1' ) then
+                                      elsif (Iword(0)(0)='1' and
+                                      ( (zero(0)='1' and Iword(1)(15 downto 12)="0100") or
+                                        (zero(1)='1' and Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11" ) or
+                                        (zero(2)='1' and not(Iword(1)(15 downto 12)="0100") and not(Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11"))))then
                                         Reg0 := aluop(0);
                                       else
                                           Reg0 := regFiledata(0);
@@ -110,7 +105,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                             else
                                   if ( Iword(1)(1)='1' and carry(1)='1' ) then
                                     Reg0 := aluop(1);
-                                  elsif (Iword(1)(0)='1' and zero(1)='1' ) then
+                                  elsif (Iword(1)(0)='1' and zero(2)='1' ) then
                                     Reg0 := aluop(1);
                                   else
                                       Reg0 := regFiledata(0);
@@ -149,7 +144,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                                 else
                                       if ( Iword(2)(1)='1' and carry(2)='1' ) then
                                         Reg0 := aluop(2);
-                                      elsif (Iword(2)(0)='1' and zero(2)='1' ) then
+                                      elsif (Iword(2)(0)='1' and zero(3)='1' ) then
                                         Reg0 := aluop(2);
                                       else
                                           Reg0 := regFiledata(0);
@@ -194,13 +189,16 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
     elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="001") then
-                  if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
+                  if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- ADD and NAND type instruction
                         if (Iword(0)(1 downto 0) = "00" ) then
                                 Reg1:=aluop(0);
                         else
                               if ( Iword(0)(1)='1' and carry(0)='1' ) then
                                 Reg1 := aluop(0);
-                              elsif (Iword(0)(0)='1' and zero(0)='1' ) then
+                              elsif (Iword(0)(0)='1' and
+                              ( (zero(0)='1' and Iword(1)(15 downto 12)="0100") or
+                                (zero(1)='1' and Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11" ) or
+                                (zero(2)='1' and not(Iword(1)(15 downto 12)="0100") and not(Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11")))) then
                                 Reg1 := aluop(0);
                               else
                                 Reg1 := regFiledata(1);
@@ -239,7 +237,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                     else
                           if ( Iword(1)(1)='1' and carry(1)='1' ) then
                               Reg1 := aluop(1);
-                          elsif (Iword(1)(0)='1' and zero(1)='1' ) then
+                          elsif (Iword(1)(0)='1' and zero(2)='1' ) then
                               Reg1 := aluop(1);
                           else
                               Reg1 := regFiledata(1);
@@ -328,7 +326,10 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(0)(1)='1' and carry(0)='1' ) then
                                 Reg2 := aluop(0);
-                              elsif (Iword(0)(0)='1' and zero(0)='1' ) then
+                              elsif (Iword(0)(0)='1' and
+                              ( (zero(0)='1' and Iword(1)(15 downto 12)="0100") or
+                                (zero(1)='1' and Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11" ) or
+                                (zero(2)='1' and not(Iword(1)(15 downto 12)="0100") and not(Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11")))) then
                                 Reg2 := aluop(0);
                               else
                                 Reg2 := regFiledata(2);
@@ -367,7 +368,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                     else
                           if ( Iword(1)(1)='1' and carry(1)='1' ) then
                               Reg2 := aluop(1);
-                          elsif (Iword(1)(0)='1' and zero(1)='1' ) then
+                          elsif (Iword(1)(0)='1' and zero(2)='1' ) then
                               Reg2 := aluop(1);
                           else
                               Reg2 := regFiledata(2);
@@ -406,7 +407,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(2)(1)='1' and carry(2)='1' ) then
                                   Reg2 := aluop(2);
-                              elsif (Iword(2)(0)='1' and zero(2)='1' ) then
+                              elsif (Iword(2)(0)='1' and zero(3)='1' ) then
                                   Reg2 := aluop(2);
                               else
                                   Reg2 := regFiledata(2);
@@ -457,7 +458,10 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(0)(1)='1' and carry(0)='1' ) then
                                 Reg3 := aluop(0);
-                              elsif (Iword(0)(0)='1' and zero(0)='1' ) then
+                              elsif (Iword(0)(0)='1' and
+                              ( (zero(0)='1' and Iword(1)(15 downto 12)="0100") or
+                                (zero(1)='1' and Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11" ) or
+                                (zero(2)='1' and not(Iword(1)(15 downto 12)="0100") and not(Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11")))) then
                                 Reg3 := aluop(0);
                               else
                                 Reg3 := regFiledata(3);
@@ -496,7 +500,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                     else
                           if ( Iword(1)(1)='1' and carry(1)='1' ) then
                               Reg3 := aluop(1);
-                          elsif (Iword(1)(0)='1' and zero(1)='1' ) then
+                          elsif (Iword(1)(0)='1' and zero(2)='1' ) then
                               Reg3 := aluop(1);
                           else
                               Reg3 := regFiledata(3);
@@ -535,7 +539,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(2)(1)='1' and carry(2)='1' ) then
                                   Reg3 := aluop(2);
-                              elsif (Iword(2)(0)='1' and zero(2)='1' ) then
+                              elsif (Iword(2)(0)='1' and zero(3)='1' ) then
                                   Reg3 := aluop(2);
                               else
                                   Reg3 := regFiledata(3);
@@ -587,7 +591,10 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(0)(1)='1' and carry(0)='1' ) then
                                 Reg4 := aluop(0);
-                              elsif (Iword(0)(0)='1' and zero(0)='1' ) then
+                              elsif (Iword(0)(0)='1' and
+                              ( (zero(0)='1' and Iword(1)(15 downto 12)="0100") or
+                                (zero(1)='1' and Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11" ) or
+                                (zero(2)='1' and not(Iword(1)(15 downto 12)="0100") and not(Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11"))) ) then
                                 Reg4 := aluop(0);
                               else
                                 Reg4 := regFiledata(4);
@@ -626,7 +633,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                     else
                           if ( Iword(1)(1)='1' and carry(1)='1' ) then
                               Reg4 := aluop(1);
-                          elsif (Iword(1)(0)='1' and zero(1)='1' ) then
+                          elsif (Iword(1)(0)='1' and zero(2)='1' ) then
                               Reg4 := aluop(1);
                           else
                               Reg4 := regFiledata(4);
@@ -665,7 +672,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(2)(1)='1' and carry(2)='1' ) then
                                   Reg4 := aluop(2);
-                              elsif (Iword(2)(0)='1' and zero(2)='1' ) then
+                              elsif (Iword(2)(0)='1' and zero(3)='1' ) then
                                   Reg4 := aluop(2);
                               else
                                   Reg4 := regFiledata(4);
@@ -717,7 +724,10 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(0)(1)='1' and carry(0)='1' ) then
                                 Reg5 := aluop(0);
-                              elsif (Iword(0)(0)='1' and zero(0)='1' ) then
+                              elsif (Iword(0)(0)='1' and
+                              ( (zero(0)='1' and Iword(1)(15 downto 12)="0100") or
+                                (zero(1)='1' and Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11" ) or
+                                (zero(2)='1' and not(Iword(1)(15 downto 12)="0100") and not(Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11")))) then
                                 Reg5 := aluop(0);
                               else
                                 Reg5 := regFiledata(5);
@@ -756,7 +766,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                     else
                           if ( Iword(1)(1)='1' and carry(1)='1' ) then
                               Reg5 := aluop(1);
-                          elsif (Iword(1)(0)='1' and zero(1)='1' ) then
+                          elsif (Iword(1)(0)='1' and zero(2)='1' ) then
                               Reg5 := aluop(1);
                           else
                               Reg5 := regFiledata(5);
@@ -795,7 +805,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(2)(1)='1' and carry(2)='1' ) then
                                   Reg5 := aluop(2);
-                              elsif (Iword(2)(0)='1' and zero(2)='1' ) then
+                              elsif (Iword(2)(0)='1' and zero(3)='1' ) then
                                   Reg5 := aluop(2);
                               else
                                   Reg5 := regFiledata(5);
@@ -847,7 +857,10 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(0)(1)='1' and carry(0)='1' ) then
                                 Reg6 := aluop(0);
-                              elsif (Iword(0)(0)='1' and zero(0)='1' ) then
+                              elsif (Iword(0)(0)='1' and
+                              ( (zero(0)='1' and Iword(1)(15 downto 12)="0100") or
+                                (zero(1)='1' and Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11" ) or
+                                (zero(2)='1' and not(Iword(1)(15 downto 12)="0100") and not(Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11"))) ) then
                                 Reg6 := aluop(0);
                               else
                                 Reg6 := regFiledata(6);
@@ -886,7 +899,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                     else
                           if ( Iword(1)(1)='1' and carry(1)='1' ) then
                               Reg6 := aluop(1);
-                          elsif (Iword(1)(0)='1' and zero(1)='1' ) then
+                          elsif (Iword(1)(0)='1' and zero(2)='1' ) then
                               Reg6 := aluop(1);
                           else
                               Reg6 := regFiledata(6);
@@ -925,7 +938,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(2)(1)='1' and carry(2)='1' ) then
                                   Reg6 := aluop(2);
-                              elsif (Iword(2)(0)='1' and zero(2)='1' ) then
+                              elsif (Iword(2)(0)='1' and zero(3)='1' ) then
                                   Reg6 := aluop(2);
                               else
                                   Reg6 := regFiledata(6);
@@ -977,7 +990,10 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(0)(1)='1' and carry(0)='1' ) then
                                 Reg7 := aluop(0);
-                              elsif (Iword(0)(0)='1' and zero(0)='1' ) then
+                              elsif (Iword(0)(0)='1' and
+                              ( (zero(0)='1' and Iword(1)(15 downto 12)="0100") or
+                                (zero(1)='1' and Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11" ) or
+                                (zero(2)='1' and not(Iword(1)(15 downto 12)="0100") and not(Iword(1)(15 downto 14)="00" and Iword(1)(13 downto 12)/="11"))) ) then
                                 Reg7 := aluop(0);
                               else
                                 Reg7 := regFiledata(7);
@@ -1016,7 +1032,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                     else
                           if ( Iword(1)(1)='1' and carry(1)='1' ) then
                               Reg7 := aluop(1);
-                          elsif (Iword(1)(0)='1' and zero(1)='1' ) then
+                          elsif (Iword(1)(0)='1' and zero(2)='1' ) then
                               Reg7 := aluop(1);
                           else
                               Reg7 := regFiledata(7);
@@ -1055,7 +1071,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                         else
                               if ( Iword(2)(1)='1' and carry(2)='1' ) then
                                   Reg7 := aluop(2);
-                              elsif (Iword(2)(0)='1' and zero(2)='1' ) then
+                              elsif (Iword(2)(0)='1' and zero(3)='1' ) then
                                   Reg7 := aluop(2);
                               else
                                   Reg7 := regFiledata(7);

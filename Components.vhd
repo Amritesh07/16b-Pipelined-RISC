@@ -25,8 +25,6 @@ type matrix is array(natural range <>) of std_logic_vector(15 downto 0);
 TYPE matrix16 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(15 downto 0);
 TYPE matrix3 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(2 downto 0);
 TYPE matrix8 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(7 downto 0);
-type AddressOutType is array(0 to 7) of std_logic_vector(15 downto 0);
---type matrix16(7 downto 0) is array(0 to 7) of std_logic_vector(15 downto 0);
 type AddressOutType_bit is array(0 to 7) of bit_vector(15 downto 0);
 --type matrix16(7 downto 0)_bit is array(0 to 7) of bit_vector(15 downto 0);
 type dramCtrl is Record
@@ -97,7 +95,7 @@ component iROM is
 	clock   : in  std_logic;
 	load_mem: in std_logic;
 	mem_loaded : out std_logic;
-	address : in  std_logic_vector(0 to 15);
+	address : in  std_logic_vector(15 downto 0);
 	dataout : out std_logic_vector(15 downto 0)
   );
 end component;
@@ -108,12 +106,12 @@ component dRAM is
 	mem_ctr : in std_logic_vector(7 downto 0);
 	Din_mem: in matrix16(7 downto 0);
 	Dout_mem: out matrix16(7 downto 0);
-	Addr_mem: in AddressOutType;
+	Addr_mem: in matrix16(7 downto 0);
 	pathway: in std_logic;
 	writeEN: in std_logic;
 	load_mem: in std_logic;
 	mem_loaded: out std_logic;
-	ai_mem: in std_logic_vector(0 to 15);
+	ai_mem: in std_logic_vector(15 downto 0);
 	di_mem: in std_logic_vector(15 downto 0);
 	do_mem: out std_logic_vector(15 downto 0)
   );
@@ -123,7 +121,7 @@ component AddressBlock is
 port(
 	Ain: in std_logic_vector(15 downto 0);
 	Sel: in std_logic_vector(7 downto 0);
-	Aout: out AddressOutType);
+	Aout: out matrix16(7 downto 0));
 end component;
 
 component GenericMux is
@@ -169,12 +167,16 @@ end component;
 
 component InstructionDecoder is
 port(
-	 I16: in std_logic_vector(15 downto 0);
-	 RF: out RegFileCtrl;
-	 DRAM: out dramCtrl;
-	 M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);
-	 M3_sel,M8_sel: out std_logic_vector(1 downto 0);
-	 M2_sel,M4_sel,M5_sel: out std_logic_vector(2 downto 0)
+I16: in std_logic_vector(15 downto 0);
+RF: out RegFileCtrl;
+DRAM: out dramCtrl;
+M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);
+M3_sel: out std_logic_vector(1 downto 0);
+M4_sel,M5_sel: out std_logic_vector(2 downto 0);
+ALUsel: out std_logic_vector(0 downto 0);
+PCwrite: out std_logic;
+carryWrite: out std_logic;
+zeroWrite:out std_logic
 	 );
 end component;
 

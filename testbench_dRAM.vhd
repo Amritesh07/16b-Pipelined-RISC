@@ -11,9 +11,9 @@ architecture Behave of dRAM_Test is
 
   signal clk   :  std_logic:='0';
   signal mem_ctr :  std_logic_vector(7 downto 0);
-  signal Din_mem:  DataInOutType;
-  signal Dout_mem:  DataInOutType;
-  signal Addr_mem:  AddressOutType;
+  signal Din_mem:  matrix16(7 downto 0);
+  signal Dout_mem:  matrix16(7 downto 0);
+  signal Addr_mem: matrix16(7 downto 0);
   signal pathway:  std_logic;
   signal writeEN:  std_logic;
   signal load_mem:  std_logic;

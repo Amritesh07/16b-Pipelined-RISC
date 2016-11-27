@@ -7,7 +7,7 @@ entity iROM is
     clock   : in  std_logic;
     load_mem: in std_logic;
     mem_loaded : out std_logic;
-    address : in  std_logic_vector(0 to 15);
+    address : in  std_logic_vector(15 downto 0);
     dataout : out std_logic_vector(15 downto 0)
   );
 end entity iROM;
@@ -18,7 +18,7 @@ architecture iRTL of iROM is
 type hram_type is array (0 to 26) of std_logic_vector(15 downto 0);
 
    signal ram : ram_type;
-   signal read_address : std_logic_vector(0 to 15);
+   signal read_address : std_logic_vector(15 downto 0);
    signal masking_vec : std_logic_vector(15 downto 0) := "0000000111111111";
    signal r_address:std_logic_vector(15 downto 0):="0000000000000000";
 function CONV_INTEGER(x: std_logic_vector) return integer is
