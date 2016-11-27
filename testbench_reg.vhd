@@ -10,8 +10,8 @@ architecture Behave of regFileTest is
 
   signal clk,done : std_logic:='0';
   signal logic_in : std_logic_vector(7 downto 0);
-  signal Din_rf:  DataInOutType;
-  signal Dout_rf:  DataInOutType;
+  signal Din_rf:  matrix16(7 downto 0);
+  signal Dout_rf:  matrix16(7 downto 0);
   signal a3rf :  std_logic_vector(2 downto 0);
   signal d3rf :  std_logic_vector(15 downto 0);
   signal d4rf :  std_logic_vector(15 downto 0);

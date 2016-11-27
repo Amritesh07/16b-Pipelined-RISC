@@ -6,8 +6,8 @@ ENTITY regfile is port(
 	done : out std_logic;
 	clk : in std_logic;
 	logic_in : in std_logic_vector(7 downto 0);
-	Din_rf: in DataInOutType;
-	Dout_rf: out DataInOutType;
+	Din_rf: in matrix16(7 downto 0);
+	Dout_rf: out matrix16(7 downto 0);
 	a3rf : in std_logic_vector(2 downto 0);
 	d3rf : in std_logic_vector(15 downto 0);
 	d4rf : in std_logic_vector(15 downto 0);

@@ -26,8 +26,6 @@ type matrix is array(natural range <>) of std_logic_vector(15 downto 0);
 TYPE matrix16 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(15 downto 0);
 TYPE matrix3 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(2 downto 0);
 TYPE matrix8 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(7 downto 0);
-type AddressOutType is array(0 to 7) of std_logic_vector(15 downto 0);
-type DataInOutType is array(0 to 7) of std_logic_vector(15 downto 0);
 type AddressOutType_bit is array(0 to 7) of bit_vector(15 downto 0);
 type DataInOutType_bit is array(0 to 7) of bit_vector(15 downto 0);
 type dramCtrl is Record
@@ -82,8 +80,8 @@ component regfile is port(
 done : out std_logic;
 clk : in std_logic;
 logic_in : in std_logic_vector(7 downto 0);
-Din_rf: in DataInOutType;
-Dout_rf: out DataInOutType;
+Din_rf: in matrix16(7 downto 0);
+Dout_rf: out matrix16(7 downto 0);
 a3rf : in std_logic_vector(2 downto 0);
 d3rf : in std_logic_vector(15 downto 0);
 d4rf : in std_logic_vector(15 downto 0);
@@ -109,9 +107,9 @@ component dRAM is
   port (
 	clock   : in  std_logic;
 	mem_ctr : in std_logic_vector(7 downto 0);
-	Din_mem: in DataInOutType;
-	Dout_mem: out DataInOutType;
-	Addr_mem: in AddressOutType;
+	Din_mem: in matrix16(7 downto 0);
+	Dout_mem: out matrix16(7 downto 0);
+	Addr_mem: in matrix16(7 downto 0);
 	pathway: in std_logic;
 	writeEN: in std_logic;
 	load_mem: in std_logic;
@@ -127,7 +125,7 @@ component AddressBlock is
 port(
 	Ain: in std_logic_vector(15 downto 0);
 	Sel: in std_logic_vector(7 downto 0);
-	Aout: out AddressOutType);
+	Aout: out matrix16(7 downto 0));
 end component;
 
 component GenericMux is
