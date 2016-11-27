@@ -1,24 +1,19 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-Package Types is
-	type AddressOutType is array(0 to 7) of std_logic_vector(15 downto 0);
-end Types;
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use work.Types.all;
+library work;
+use work.components.all;
 entity AddressBlock is
 port(
 
 	Ain: in std_logic_vector(15 downto 0);
 	Sel: in std_logic_vector(7 downto 0);
-	Aout: out AddressOutType);
+	Aout: out matrix16(7 downto 0));
 end entity AddressBlock;
 
 
 architecture arch of AddressBlock is
-	signal AoutTemp: AddressOutType;
+	signal AoutTemp: matrix16(7 downto 0);
 
 begin
 	process(Ain,Sel)
