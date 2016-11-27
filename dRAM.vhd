@@ -31,7 +31,7 @@ entity dRAM is
     do6mem  : out std_logic_vector(15 downto 0);
     do7mem  : out std_logic_vector(15 downto 0);
 
-    pathway: in bit;
+    pathway: in bit;	-- 0-single, 1 Multiple
     writeEN: in bit;
     load_mem: in bit;
     mem_loaded: out bit;

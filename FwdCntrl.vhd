@@ -15,21 +15,26 @@ use std.textio.all;
 
 ----------------------------- HARSHVARDHAN ---------------------------------
 -----** --------------------DATA FORWARDING LOGIC----------------
+--  if stall, then put 1111 in stalled instruction opcode
+-- this is also preserve priority rules
+-- regFiledata(7) is connected to PC and not reg file
+---------------------------------------------------
 entity FwdCntrl is
 port (
 padder:       in matrix16(2 downto 0);       -- 0 - execute  1 - mem -- 2- for writeback for all
 PC_1:         in matrix16(2 downto 0);
-aluop:        in matrix16(2 downto 0);
+aluop:        in matrix16(2 downto 0);    -- alu output
 regDest:      in matrix3(2 downto 0) ;
 Iword:        in matrix16(2 downto 0);
 Lm_mem:       in matrix16(7 downto 0);  -- mem stage
 Lm_wb:        in matrix16(7 downto 0);   -- writeback stage ()
 mem_out:      in matrix16(1 downto 0);   -- 0 - mem , 1- writeback (single output)
-Lm_sel:       in matrix16(1 downto 0);    --0 - mem , 1- writeback (single output)
+Lm_sel:       in matrix8(2 downto 0);    --0 - execute , 1- mem, 2- writeback (single output)
 regFiledata:  in matrix16(7 downto 0);  -- regFiledata[7] has to be connected to PC brought by the pipeline register
 carry :       in std_logic_vector(2 downto 0);
 zero:         in std_logic_vector(2 downto 0);
-regDataout:   out matrix16(7 downto 0)
+regDataout:   out matrix16(7 downto 0);
+stallflag:    out std_logic
          ) ;
 end FwdCntrl ;
 -----
@@ -38,21 +43,26 @@ architecture comb of FwdCntrl is
 ----------
 ---Declarations
 signal RegAll : matrix16(7 downto 0);
+signal stall: std_logic_vector(7 downto 0):=(others=>'0');
 
 ----------------------
 begin
   --- ------------------------------process for R0-----------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
           variable Reg0: std_logic_vector(15 downto 0):= (others=>'0');
+          variable var_stall: std_logic:='0';
           begin
 
             ---------------- ----------------------------------------
             ------------ forwrding for R0 from execute stage----------
-
-            if (Iword(0)(15 downto 12) = "0110") then   -- if LM of execute
+            var_stall:='0';
+            if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
                 Reg0:=regFiledata(0);
+                if (Lm_sel(0)(0)='1' or regDest(0)="000") then
+                  var_stall:='1';
+                end if;
 
-            elsif (Iword(0)(15 downto 12) /= "0110") then
+            elsif (Iword(0)(15 downto 12) /= "1111") then
 
                     if(regDest(0)="000") then
                           if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -85,13 +95,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
 
             elsif (Iword(1)(15 downto 12) = "0110") then   -- if LM of mem
 
-                    if ( Lm_sel(0)(0)='1') then
+                    if ( Lm_sel(1)(0)='1') then
                       Reg0 := Lm_mem(0);
                     else
                       Reg0 := regFiledata(0);
                     end if;
 
-            elsif (Iword(1)(15 downto 12) /= "0110") then
+            elsif (Iword(1)(15 downto 12) /= "1111") then
 
                     if(regDest(1)="000") then
                       if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -124,13 +134,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
         ------------ forwrding for R0 from writeback stage---------------
             elsif (Iword(2)(15 downto 12) = "0110") then   -- if LM    of writeback
 
-                    if ( Lm_sel(1)(0)='1') then
+                    if ( Lm_sel(2)(0)='1') then
                       Reg0 := Lm_wb(0);       ---------- select R0 register
                     else
                       Reg0 := regFiledata(0);
                     end if;
 
-            elsif (Iword(2)(15 downto 12) /= "0110") then
+            elsif (Iword(2)(15 downto 12) /= "1111") then
 
                     if(regDest(2)="000") then
                           if ( Iword(2)(15)='0' and Iword(2)(14)='0' and Iword(2)(12)='0') then ----- R type instruction
@@ -161,6 +171,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                     end if;
 
             end if;
+            stall(0)<=var_stall;
             RegAll(0)<=Reg0;
 end process;
   ------------------------------------------------------------------------------------
@@ -168,15 +179,19 @@ end process;
   ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
   variable Reg1:std_logic_vector(15 downto 0):= (others=>'0');
+  variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
-
-    if (Iword(0)(15 downto 12) = "0110") then   -- if LM of execute
+    var_stall:='0';
+    if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg1:=regFiledata(1);
+        if (Lm_sel(0)(1)='1' or regDest(0)="001") then
+          var_stall:='1';
+        end if;
 
-    elsif (Iword(0)(15 downto 12) /= "0110") then
+    elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="001") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -209,13 +224,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
 
     elsif (Iword(1)(15 downto 12) = "0110") then   -- if LM of mem
 
-            if ( Lm_sel(0)(1)='1') then
+            if ( Lm_sel(1)(1)='1') then
               Reg1 := Lm_mem(1);
             else
               Reg1 := regFiledata(1);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "0110") then
+    elsif (Iword(1)(15 downto 12) /= "1111") then
 
             if(regDest(1)="001") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -248,13 +263,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             ------------ forwrding for R0 from writeback stage---------------
     elsif (Iword(2)(15 downto 12) = "0110") then   -- if LM    of writeback
 
-            if ( Lm_sel(1)(1)='1') then
+            if ( Lm_sel(2)(1)='1') then
               Reg1 := Lm_wb(1);       ---------- select R0 register
             else
               Reg1 := regFiledata(1);
             end if;
 
-    elsif (Iword(2)(15 downto 12) /= "0110") then
+    elsif (Iword(2)(15 downto 12) /= "1111") then
 
             if(regDest(2)="001") then
                   if ( Iword(2)(15)='0' and Iword(2)(14)='0' and Iword(2)(12)='0') then ----- R type instruction
@@ -285,6 +300,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             end if;
 
     end if;
+    stall(1)<=var_stall;
     RegAll(1) <= Reg1;
 end process;
 ------------------------------------------------------------------------------------
@@ -292,15 +308,18 @@ end process;
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
   variable Reg2:std_logic_vector(15 downto 0):= (others=>'0');
+  variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
-
-    if (Iword(0)(15 downto 12) = "0110") then   -- if LM of execute
+    var_stall:='0';
+    if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg2:=regFiledata(2);
-
-    elsif (Iword(0)(15 downto 12) /= "0110") then
+        if (Lm_sel(0)(2)='1' or regDest(0)="010") then
+          var_stall:='1';
+        end if;
+    elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="010") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -333,13 +352,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
 
     elsif (Iword(1)(15 downto 12) = "0110") then   -- if LM of mem
 
-            if ( Lm_sel(0)(2)='1') then
+            if ( Lm_sel(1)(2)='1') then
               Reg2 := Lm_mem(2);
             else
               Reg2 := regFiledata(2);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "0110") then
+    elsif (Iword(1)(15 downto 12) /= "1111") then
 
             if(regDest(1)="010") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -372,13 +391,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             ------------ forwrding for R0 from writeback stage---------------
     elsif (Iword(2)(15 downto 12) = "0110") then   -- if LM    of writeback
 
-            if ( Lm_sel(1)(2)='1') then
+            if ( Lm_sel(2)(2)='1') then
               Reg2 := Lm_wb(2);       ---------- select R0 register
             else
               Reg2 := regFiledata(2);
             end if;
 
-    elsif (Iword(2)(15 downto 12) /= "0110") then
+    elsif (Iword(2)(15 downto 12) /= "1111") then
 
             if(regDest(2)="010") then
                   if ( Iword(2)(15)='0' and Iword(2)(14)='0' and Iword(2)(12)='0') then ----- R type instruction
@@ -409,6 +428,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             end if;
 
     end if;
+    stall(2)<=var_stall;
     RegAll(2) <= Reg2;
 end process;
 ------------------------------------------------------------------------------------
@@ -416,15 +436,19 @@ end process;
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
   variable Reg3:std_logic_vector(15 downto 0):= (others=>'0');
+  variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
-
-    if (Iword(0)(15 downto 12) = "0110") then   -- if LM of execute
+    var_stall:='0';
+    if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg3:=regFiledata(3);
+        if (Lm_sel(0)(3)='1' or regDest(0)="011") then
+          var_stall:='1';
+        end if;
 
-    elsif (Iword(0)(15 downto 12) /= "0110") then
+    elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="011") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -457,13 +481,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
 
     elsif (Iword(1)(15 downto 12) = "0110") then   -- if LM of mem
 
-            if ( Lm_sel(0)(3)='1') then
+            if ( Lm_sel(1)(3)='1') then
               Reg3 := Lm_mem(3);
             else
               Reg3 := regFiledata(3);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "0110") then
+    elsif (Iword(1)(15 downto 12) /= "1111") then
 
             if(regDest(1)="011") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -496,13 +520,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             ------------ forwrding for R0 from writeback stage---------------
     elsif (Iword(2)(15 downto 12) = "0110") then   -- if LM    of writeback
 
-            if ( Lm_sel(1)(3)='1') then
+            if ( Lm_sel(2)(3)='1') then
               Reg3 := Lm_wb(3);       ---------- select R0 register
             else
               Reg3 := regFiledata(3);
             end if;
 
-    elsif (Iword(2)(15 downto 12) /= "0110") then
+    elsif (Iword(2)(15 downto 12) /= "1111") then
 
             if(regDest(2)="011") then
                   if ( Iword(2)(15)='0' and Iword(2)(14)='0' and Iword(2)(12)='0') then ----- R type instruction
@@ -533,6 +557,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             end if;
 
     end if;
+    stall(3)<=var_stall;
     RegAll(3) <= Reg3;
 end process;
 ------------------------------------------------------------------------------------
@@ -540,15 +565,20 @@ end process;
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
   variable Reg4:std_logic_vector(15 downto 0):= (others=>'0');
+  variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
-
-    if (Iword(0)(15 downto 12) = "0110") then   -- if LM of execute
+    var_stall:='0';
+    if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg4:=regFiledata(4);
+        if (Lm_sel(0)(4)='1' or regDest(0)="100") then
+          var_stall:='1';
+        end if;
 
-    elsif (Iword(0)(15 downto 12) /= "0110") then
+
+    elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="100") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -581,13 +611,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
 
     elsif (Iword(1)(15 downto 12) = "0110") then   -- if LM of mem
 
-            if ( Lm_sel(0)(4)='1') then
+            if ( Lm_sel(1)(4)='1') then
               Reg4 := Lm_mem(4);
             else
               Reg4 := regFiledata(4);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "0110") then
+    elsif (Iword(1)(15 downto 12) /= "1111") then
 
             if(regDest(1)="100") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -620,13 +650,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             ------------ forwrding for R0 from writeback stage---------------
     elsif (Iword(2)(15 downto 12) = "0110") then   -- if LM    of writeback
 
-            if ( Lm_sel(1)(4)='1') then
+            if ( Lm_sel(2)(4)='1') then
               Reg4 := Lm_wb(4);       ---------- select R0 register
             else
               Reg4 := regFiledata(4);
             end if;
 
-    elsif (Iword(2)(15 downto 12) /= "0110") then
+    elsif (Iword(2)(15 downto 12) /= "1111") then
 
             if(regDest(2)="100") then
                   if ( Iword(2)(15)='0' and Iword(2)(14)='0' and Iword(2)(12)='0') then ----- R type instruction
@@ -657,6 +687,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             end if;
 
     end if;
+    stall(4)<=var_stall;
     RegAll(4) <= Reg4;
 end process;
 ------------------------------------------------------------------------------------
@@ -664,15 +695,20 @@ end process;
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
   variable Reg5:std_logic_vector(15 downto 0):= (others=>'0');
+  variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
-
-    if (Iword(0)(15 downto 12) = "0110") then   -- if LM of execute
+    var_stall:='0';
+    if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg5:=regFiledata(5);
+        if (Lm_sel(0)(5)='1' or regDest(0)="101") then
+          var_stall:='1';
+        end if;
 
-    elsif (Iword(0)(15 downto 12) /= "0110") then
+
+    elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="101") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -705,13 +741,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
 
     elsif (Iword(1)(15 downto 12) = "0110") then   -- if LM of mem
 
-            if ( Lm_sel(0)(5)='1') then
+            if ( Lm_sel(1)(5)='1') then
               Reg5 := Lm_mem(5);
             else
               Reg5 := regFiledata(5);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "0110") then
+    elsif (Iword(1)(15 downto 12) /= "1111") then
 
             if(regDest(1)="101") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -744,13 +780,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             ------------ forwrding for R0 from writeback stage---------------
     elsif (Iword(2)(15 downto 12) = "0110") then   -- if LM    of writeback
 
-            if ( Lm_sel(1)(5)='1') then
+            if ( Lm_sel(2)(5)='1') then
               Reg5 := Lm_wb(5);       ---------- select R0 register
             else
               Reg5 := regFiledata(5);
             end if;
 
-    elsif (Iword(2)(15 downto 12) /= "0110") then
+    elsif (Iword(2)(15 downto 12) /= "1111") then
 
             if(regDest(2)="101") then
                   if ( Iword(2)(15)='0' and Iword(2)(14)='0' and Iword(2)(12)='0') then ----- R type instruction
@@ -781,6 +817,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             end if;
 
     end if;
+    stall(5) <=  var_stall;
     RegAll(5) <= Reg5;
 end process;
 ------------------------------------------------------------------------------------
@@ -788,15 +825,20 @@ end process;
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
   variable Reg6:std_logic_vector(15 downto 0):= (others=>'0');
+  variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
-
-    if (Iword(0)(15 downto 12) = "0110") then   -- if LM of execute
+    var_stall:='0';
+    if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg6:=regFiledata(6);
+        if (Lm_sel(0)(6)='1' or regDest(0)="110") then
+          var_stall:='1';
+        end if;
 
-    elsif (Iword(0)(15 downto 12) /= "0110") then
+
+    elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="110") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -829,13 +871,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
 
     elsif (Iword(1)(15 downto 12) = "0110") then   -- if LM of mem
 
-            if ( Lm_sel(0)(6)='1') then
+            if ( Lm_sel(1)(6)='1') then
               Reg6 := Lm_mem(6);
             else
               Reg6 := regFiledata(6);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "0110") then
+    elsif (Iword(1)(15 downto 12) /= "1111") then
 
             if(regDest(1)="110") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -868,13 +910,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             ------------ forwrding for R0 from writeback stage---------------
     elsif (Iword(2)(15 downto 12) = "0110") then   -- if LM    of writeback
 
-            if ( Lm_sel(1)(6)='1') then
+            if ( Lm_sel(2)(6)='1') then
               Reg6 := Lm_wb(6);       ---------- select R0 register
             else
               Reg6 := regFiledata(6);
             end if;
 
-    elsif (Iword(2)(15 downto 12) /= "0110") then
+    elsif (Iword(2)(15 downto 12) /= "1111") then
 
             if(regDest(2)="110") then
                   if ( Iword(2)(15)='0' and Iword(2)(14)='0' and Iword(2)(12)='0') then ----- R type instruction
@@ -905,6 +947,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             end if;
 
     end if;
+    stall(6) <= var_stall;
     RegAll(6) <= Reg6;
 end process;
 ------------------------------------------------------------------------------------
@@ -912,15 +955,20 @@ end process;
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
   variable Reg7:std_logic_vector(15 downto 0):= (others=>'0');
+  variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
-
-    if (Iword(0)(15 downto 12) = "0110") then   -- if LM of execute
+    var_stall:='0';
+    if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg7:=regFiledata(7);
+        if (Lm_sel(0)(7)='1' or regDest(0)="111") then
+          var_stall:='1';
+        end if;
 
-    elsif (Iword(0)(15 downto 12) /= "0110") then
+
+    elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="111") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -953,13 +1001,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
 
     elsif (Iword(1)(15 downto 12) = "0110") then   -- if LM of mem
 
-            if ( Lm_sel(0)(7)='1') then
+            if ( Lm_sel(1)(7)='1') then
               Reg7 := Lm_mem(7);
             else
               Reg7 := regFiledata(7);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "0110") then
+    elsif (Iword(1)(15 downto 12) /= "1111") then
 
             if(regDest(1)="111") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -992,13 +1040,13 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             ------------ forwrding for R0 from writeback stage---------------
     elsif (Iword(2)(15 downto 12) = "0110") then   -- if LM    of writeback
 
-            if ( Lm_sel(1)(7)='1') then
+            if ( Lm_sel(2)(7)='1') then
               Reg7 := Lm_wb(7);       ---------- select R0 register
             else
               Reg7 := regFiledata(7);
             end if;
 
-    elsif (Iword(2)(15 downto 12) /= "0110") then
+    elsif (Iword(2)(15 downto 12) /= "1111") then
 
             if(regDest(2)="111") then
                   if ( Iword(2)(15)='0' and Iword(2)(14)='0' and Iword(2)(12)='0') then ----- R type instruction
@@ -1029,9 +1077,10 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
             end if;
 
     end if;
+    stall(7)<=var_stall;
     RegAll(7) <= Reg7;
 end process;
 
 regDataout<=RegAll;
-
+stallflag<= (stall(0) or stall(1) or stall(2) or stall(3) or stall(4) or stall(5) or stall(6) or stall(7));
 end comb;
