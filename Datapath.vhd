@@ -27,7 +27,6 @@ constant OP_BEQ: Std_Logic_Vector(3 downto 0) := "1100";
 constant OP_JAL: Std_Logic_Vector(3 downto 0) := "1000";
 constant OP_JLR: Std_Logic_Vector(3 downto 0) := "1001";
 
---==================================
 signal null16: std_logic_vector(15 downto 0):="0000000000000000";
 signal done_sig: std_logic;
 -- pipeline related signals
@@ -100,8 +99,6 @@ MEM_WB_in_sig.M3_sel <= EX_MEM_out_sig.M3_sel;
 MEM_WB_in_sig.I16 <= Instr_out_sig(4);
 
 ---------------------------
-
-
 PC_PROXY: DataRegister generic map(data_width => 16) port map(Din=> PC_val_sig,
  																													 Dout=> IF_ID_in_sig.PC,
 																													 clk=> clk,
@@ -223,7 +220,6 @@ ZeroReg: DataRegister generic map(data_width = 1) port map(enable =>zeroRegEn,
 																													Dout =>EX_MEM_in_sig.C_old,
 																													clk =>clk
 																													);
-
 Hazard_Mitigation_Unit: HazardUnit port map (
 							lw_out => MEM_WB_in_sig.mem_out,
 							lm_out => MEM_WB_in_sig.D_multiple(7),
