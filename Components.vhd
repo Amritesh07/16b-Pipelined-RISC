@@ -94,15 +94,13 @@ pc_write : in std_logic
 end component;
 
 
-component iRAM is
+component iROM is
   port (
-    clock   : in  std_logic;
-    load_mem: in std_logic;
-    mem_loaded : out std_logic;
-    writeEN : in  std_logic;
-    address : in  std_logic_vector(0 to 15);
-    datain  : in  std_logic_vector(15 downto 0);
-    dataout : out std_logic_vector(15 downto 0)
+	clock   : in  std_logic;
+	load_mem: in std_logic;
+	mem_loaded : out std_logic;
+	address : in  std_logic_vector(0 to 15);
+	dataout : out std_logic_vector(15 downto 0)
   );
 end component;
 
