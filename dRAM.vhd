@@ -1,45 +1,22 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.Numeric_Std.all;
+use work.components.all;
 
 entity dRAM is
   port (
     clock   : in  std_logic;
     mem_ctr : in std_logic_vector(7 downto 0);
-    di0mem  : in std_logic_vector(15 downto 0);
-    di1mem  : in std_logic_vector(15 downto 0);
-    di2mem  : in std_logic_vector(15 downto 0);
-    di3mem  : in std_logic_vector(15 downto 0);
-    di4mem  : in std_logic_vector(15 downto 0);
-    di5mem	 : in std_logic_vector(15 downto 0);
-    di6mem  : in std_logic_vector(15 downto 0);
-    di7mem  : in std_logic_vector(15 downto 0);
-    ai0mem  : in std_logic_vector(0 to 15);
-    ai1mem  : in std_logic_vector(0 to 15);
-    ai2mem  : in std_logic_vector(0 to 15);
-    ai3mem  : in std_logic_vector(0 to 15);
-    ai4mem  : in std_logic_vector(0 to 15);
-    ai5mem	 : in std_logic_vector(0 to 15);
-    ai6mem  : in std_logic_vector(0 to 15);
-    ai7mem  : in std_logic_vector(0 to 15);
-    do0mem  : out std_logic_vector(15 downto 0);
-    do1mem  : out std_logic_vector(15 downto 0);
-    do2mem  : out std_logic_vector(15 downto 0);
-    do3mem  : out std_logic_vector(15 downto 0);
-    do4mem  : out std_logic_vector(15 downto 0);
-    do5mem	 : out std_logic_vector(15 downto 0);
-    do6mem  : out std_logic_vector(15 downto 0);
-    do7mem  : out std_logic_vector(15 downto 0);
-
-    pathway: in bit;	-- 0-single, 1 Multiple
-    writeEN: in bit;
-    load_mem: in bit;
-    mem_loaded: out bit;
-    ai_mem: in std_logic_vector(0 to 15);
+    Din_mem: in DataInOutType;
+    Dout_mem: out DataInOutType;
+    Addr_mem: in AddressOutType;
+    pathway: in std_logic;
+    writeEN: in std_logic;
+    load_mem: in std_logic;
+    mem_loaded: out std_logic;
+    ai_mem: in std_logic_vector(15 downto 0);
     di_mem: in std_logic_vector(15 downto 0);
     do_mem: out std_logic_vector(15 downto 0)
-
-
   );
 end entity dRAM;
 
@@ -100,47 +77,56 @@ function CONV_INTEGER(x: std_logic_vector) return integer is
 begin
 
 	r_address <= ai_mem and masking_vec;
-  r0_address <= ai0mem and masking_vec;
-  r1_address <= ai1mem and masking_vec;
-  r2_address <= ai2mem and masking_vec;
-  r3_address <= ai3mem and masking_vec;
-  r4_address <= ai4mem and masking_vec;
-  r5_address <= ai5mem and masking_vec;
-  r6_address <= ai6mem and masking_vec;
-  r7_address <= ai7mem and masking_vec;
+  r0_address <= Addr_mem(0) and masking_vec;
+  r1_address <= Addr_mem(1) and masking_vec;
+  r2_address <= Addr_mem(2) and masking_vec;
+  r3_address <= Addr_mem(3) and masking_vec;
+  r4_address <= Addr_mem(4) and masking_vec;
+  r5_address <= Addr_mem(5) and masking_vec;
+  r6_address <= Addr_mem(6) and masking_vec;
+  r7_address <= Addr_mem(7) and masking_vec;
 	do_mem <= ram(CONV_INTEGER(r_address));
-  do0mem <= ram(CONV_INTEGER(r0_address));
-  do1mem <= ram(CONV_INTEGER(r1_address));
-  do2mem <= ram(CONV_INTEGER(r2_address));
-  do3mem <= ram(CONV_INTEGER(r3_address));
-  do4mem <= ram(CONV_INTEGER(r4_address));
-  do5mem <= ram(CONV_INTEGER(r5_address));
-  do6mem <= ram(CONV_INTEGER(r6_address));
-  do7mem <= ram(CONV_INTEGER(r7_address));
+  Dout_mem(0) <= ram(CONV_INTEGER(r0_address));
+  Dout_mem(1) <= ram(CONV_INTEGER(r1_address));
+  Dout_mem(2) <= ram(CONV_INTEGER(r2_address));
+  Dout_mem(3) <= ram(CONV_INTEGER(r3_address));
+  Dout_mem(4) <= ram(CONV_INTEGER(r4_address));
+  Dout_mem(5) <= ram(CONV_INTEGER(r5_address));
+  Dout_mem(6) <= ram(CONV_INTEGER(r6_address));
+  Dout_mem(7) <= ram(CONV_INTEGER(r7_address));
+
 
   RamProc: process(clock,wr_flag) is
   variable address_in: integer:=0;
   variable address_in_r:integer:=0;
   begin
     if rising_edge(clock) then
-      	if (writeEN = '1' and pathway ='1' )then
+      	if (writeEN = '1' and pathway ='0' )then
         	ram(CONV_INTEGER(ai_mem)) <= di_mem;
-        elsif (writeEN = '1' and mem_ctr(0) ='1' )then
-          ram(CONV_INTEGER(ai0mem)) <= di0mem;
-        elsif (writeEN = '1' and mem_ctr(1) ='1' )then
-            ram(CONV_INTEGER(ai1mem)) <= di1mem;
-        elsif (writeEN = '1' and mem_ctr(2) ='1' )then
-            ram(CONV_INTEGER(ai2mem)) <= di2mem;
-        elsif (writeEN = '1' and mem_ctr(3) ='1' )then
-            ram(CONV_INTEGER(ai3mem)) <= di3mem;
-        elsif (writeEN = '1' and mem_ctr(4) ='1' )then
-            ram(CONV_INTEGER(ai4mem)) <= di4mem;
-        elsif (writeEN = '1' and mem_ctr(5) ='1' )then
-            ram(CONV_INTEGER(ai5mem)) <= di5mem;
-        elsif (writeEN = '1' and mem_ctr(6) ='1' )then
-            ram(CONV_INTEGER(ai6mem)) <= di6mem;
-        elsif (writeEN = '1' and mem_ctr(7) ='1' )then
-            ram(CONV_INTEGER(ai7mem)) <= di7mem;
+        end if;
+        if (writeEN = '1' and mem_ctr(0) ='1' and pathway='1')then
+          ram(CONV_INTEGER(Addr_mem(0))) <= Din_mem(0);
+        end if;
+        if (writeEN = '1' and mem_ctr(1) ='1' and pathway='1')then
+            ram(CONV_INTEGER(Addr_mem(1))) <= Din_mem(1);
+        end if;
+        if (writeEN = '1' and mem_ctr(2) ='1' and pathway='1')then
+            ram(CONV_INTEGER(Addr_mem(2))) <= Din_mem(2);
+        end if;
+        if (writeEN = '1' and mem_ctr(3) ='1' and pathway='1')then
+            ram(CONV_INTEGER(Addr_mem(3))) <= Din_mem(3);
+        end if;
+        if (writeEN = '1' and mem_ctr(4) ='1' and pathway='1')then
+            ram(CONV_INTEGER(Addr_mem(4))) <= Din_mem(4);
+        end if;
+        if (writeEN = '1' and mem_ctr(5) ='1' and pathway='1')then
+            ram(CONV_INTEGER(Addr_mem(5))) <= Din_mem(5);
+        end if;
+        if (writeEN = '1' and mem_ctr(6) ='1' and pathway='1')then
+            ram(CONV_INTEGER(Addr_mem(6))) <= Din_mem(6);
+        end if;
+        if (writeEN = '1' and mem_ctr(7) ='1' and pathway='1')then
+            ram(CONV_INTEGER(Addr_mem(7))) <= Din_mem(7);
         end if;
   --dataout <= "0000000000000000";
 	--else

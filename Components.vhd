@@ -28,6 +28,8 @@ TYPE matrix3 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(2 downto 0);
 TYPE matrix8 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(7 downto 0);
 type AddressOutType is array(0 to 7) of std_logic_vector(15 downto 0);
 type DataInOutType is array(0 to 7) of std_logic_vector(15 downto 0);
+type AddressOutType_bit is array(0 to 7) of bit_vector(15 downto 0);
+type DataInOutType_bit is array(0 to 7) of bit_vector(15 downto 0);
 type dramCtrl is Record
 		mem_ctr : std_logic_vector(7 downto 0);
 		pathway : bit;
@@ -77,90 +79,46 @@ end component;
 
 
 component regfile is port(
-	done : out std_logic;
-	clk : in std_logic;
-	logic_in : in std_logic_vector(7 downto 0);
-	di0rf  : in std_logic_vector(15 downto 0);
-	di1rf  : in std_logic_vector(15 downto 0);
-	di2rf  : in std_logic_vector(15 downto 0);
-	di3rf  : in std_logic_vector(15 downto 0);
-	di4rf  : in std_logic_vector(15 downto 0);
-	di5rf	 : in std_logic_vector(15 downto 0);
-	di6rf  : in std_logic_vector(15 downto 0);
-	di7rf  : in std_logic_vector(15 downto 0);
-
-	do0rf  : out std_logic_vector(15 downto 0);
-	do1rf  : out std_logic_vector(15 downto 0);
-	do2rf  : out std_logic_vector(15 downto 0);
-	do3rf  : out std_logic_vector(15 downto 0);
-	do4rf  : out std_logic_vector(15 downto 0);
-	do5rf  : out std_logic_vector(15 downto 0);
-	do6rf  : out std_logic_vector(15 downto 0);
-	do7rf  : out std_logic_vector(15 downto 0);
-
-
-	a3rf : in std_logic_vector(2 downto 0);
-	d3rf : in std_logic_vector(15 downto 0);
-	d4rf : in std_logic_vector(15 downto 0);
-	path_decider : in std_logic;
-	rf_write: in std_logic;
-	pc_write : in std_logic
-
+done : out std_logic;
+clk : in std_logic;
+logic_in : in std_logic_vector(7 downto 0);
+Din_rf: in DataInOutType;
+Dout_rf: out DataInOutType;
+a3rf : in std_logic_vector(2 downto 0);
+d3rf : in std_logic_vector(15 downto 0);
+d4rf : in std_logic_vector(15 downto 0);
+path_decider : in std_logic;
+rf_write: in std_logic;
+pc_write : in std_logic
 	);
 end component;
 
 
-component iRAM is
+component iROM is
   port (
-    clock   : in  std_logic;
-    load_mem: in std_logic;
-    mem_loaded : out std_logic;
-    writeEN : in  std_logic;
-    address : in  std_logic_vector(0 to 15);
-    datain  : in  std_logic_vector(15 downto 0);
-    dataout : out std_logic_vector(15 downto 0)
+	clock   : in  std_logic;
+	load_mem: in std_logic;
+	mem_loaded : out std_logic;
+	address : in  std_logic_vector(0 to 15);
+	dataout : out std_logic_vector(15 downto 0)
   );
 end component;
 
 
 component dRAM is
   port (
-    clock   : in  std_logic;
-    mem_ctr : in std_logic_vector(7 downto 0);
-    di0mem  : in std_logic_vector(15 downto 0);
-    di1mem  : in std_logic_vector(15 downto 0);
-    di2mem  : in std_logic_vector(15 downto 0);
-    di3mem  : in std_logic_vector(15 downto 0);
-    di4mem  : in std_logic_vector(15 downto 0);
-    di5mem	 : in std_logic_vector(15 downto 0);
-    di6mem  : in std_logic_vector(15 downto 0);
-    di7mem  : in std_logic_vector(15 downto 0);
-    ai0mem  : in std_logic_vector(0 to 15);
-    ai1mem  : in std_logic_vector(0 to 15);
-    ai2mem  : in std_logic_vector(0 to 15);
-    ai3mem  : in std_logic_vector(0 to 15);
-    ai4mem  : in std_logic_vector(0 to 15);
-    ai5mem	 : in std_logic_vector(0 to 15);
-    ai6mem  : in std_logic_vector(0 to 15);
-    ai7mem  : in std_logic_vector(0 to 15);
-    do0mem  : out std_logic_vector(15 downto 0);
-    do1mem  : out std_logic_vector(15 downto 0);
-    do2mem  : out std_logic_vector(15 downto 0);
-    do3mem  : out std_logic_vector(15 downto 0);
-    do4mem  : out std_logic_vector(15 downto 0);
-    do5mem	 : out std_logic_vector(15 downto 0);
-    do6mem  : out std_logic_vector(15 downto 0);
-    do7mem  : out std_logic_vector(15 downto 0);
-
-    pathway: in bit;
-    writeEN: in bit;
-    load_mem: in bit;
-    mem_loaded: out bit;
-    ai_mem: in std_logic_vector(0 to 15);
-    di_mem: in std_logic_vector(15 downto 0);
-    do_mem: out std_logic_vector(15 downto 0)
-
-
+	clock   : in  std_logic;
+	mem_ctr : in std_logic_vector(7 downto 0);
+	Din_mem: in DataInOutType;
+	Dout_mem: out DataInOutType;
+	Addr_mem: in AddressOutType;
+	pathway: in std_logic;
+	writeEN: in std_logic;
+	load_mem: in std_logic;
+	mem_loaded: out std_logic;
+	ai_mem: in std_logic_vector(0 to 15);
+	di_mem: in std_logic_vector(15 downto 0);
+	do_mem: out std_logic_vector(15 downto 0)
   );
 end component;
 

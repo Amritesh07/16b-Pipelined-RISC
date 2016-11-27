@@ -1,29 +1,13 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
+USE work.components.all;
 
 ENTITY regfile is port(
 	done : out std_logic;
 	clk : in std_logic;
 	logic_in : in std_logic_vector(7 downto 0);
-	di0rf  : in std_logic_vector(15 downto 0);
-	di1rf  : in std_logic_vector(15 downto 0);
-	di2rf  : in std_logic_vector(15 downto 0);
-	di3rf  : in std_logic_vector(15 downto 0);
-	di4rf  : in std_logic_vector(15 downto 0);
-	di5rf	 : in std_logic_vector(15 downto 0);
-	di6rf  : in std_logic_vector(15 downto 0);
-	di7rf  : in std_logic_vector(15 downto 0);
-
-	do0rf  : out std_logic_vector(15 downto 0);
-	do1rf  : out std_logic_vector(15 downto 0);
-	do2rf  : out std_logic_vector(15 downto 0);
-	do3rf  : out std_logic_vector(15 downto 0);
-	do4rf  : out std_logic_vector(15 downto 0);
-	do5rf  : out std_logic_vector(15 downto 0);
-	do6rf  : out std_logic_vector(15 downto 0);
-	do7rf  : out std_logic_vector(15 downto 0);
-
-
+	Din_rf: in DataInOutType;
+	Dout_rf: out DataInOutType;
 	a3rf : in std_logic_vector(2 downto 0);
 	d3rf : in std_logic_vector(15 downto 0);
 	d4rf : in std_logic_vector(15 downto 0);
@@ -54,14 +38,14 @@ function CONV_INTEGER(x: std_logic_vector) return integer is
   end CONV_INTEGER;
 BEGIN
 
-	do7rf <= RF(7);
-	do6rf <= RF(6);
-	do5rf <= RF(5);
-	do4rf <= RF(4);
-	do3rf <= RF(3);
-	do2rf <= RF(2);
-	do1rf <= RF(1);
-	do0rf <= RF(0);
+	Dout_rf(7)<=RF(7);
+	Dout_rf(6)<=RF(6);
+	Dout_rf(5)<=RF(5);
+	Dout_rf(4)<=RF(4);
+	Dout_rf(3)<=RF(3);
+	Dout_rf(2)<=RF(2);
+	Dout_rf(1)<=RF(1);
+	Dout_rf(0)<=RF(0);
 
 	RF_PC_Write:Process(clk)
 	BEGIN
@@ -77,36 +61,36 @@ BEGIN
 		--report "yo2";
 		end if;
 
-		if((logic_in(0)='1') and (path_decider='1')) THEN
-		RF(0) <= di0rf;
+		if((logic_in(0)='1') and (path_decider='1') and (rf_write='1')) THEN
+		RF(0) <= Din_rf(0);
 		end if;
 
-		if((logic_in(1)='1') and (path_decider='1')) THEN
-		RF(1) <= di1rf;
+		if((logic_in(1)='1') and (path_decider='1')and (rf_write='1')) THEN
+		RF(1) <= Din_rf(1);
 		end if;
 
-		if((logic_in(2)='1') and (path_decider='1')) THEN
-		RF(2) <= di2rf;
+		if((logic_in(2)='1') and (path_decider='1') and (rf_write='1')) THEN
+		RF(2) <= Din_rf(2);
 		end if;
 
-		if((logic_in(3)='1') and (path_decider='1')) THEN
-		RF(3) <= di3rf;
+		if((logic_in(3)='1') and (path_decider='1') and (rf_write='1')) THEN
+		RF(3) <= Din_rf(3);
 		end if;
 
-		if((logic_in(4)='1') and (path_decider='1')) THEN
-		RF(4) <= di4rf;
+		if((logic_in(4)='1') and (path_decider='1') and (rf_write='1')) THEN
+		RF(4) <= Din_rf(4);
 		end if;
 
-		if((logic_in(5)='1') and (path_decider='1')) THEN
-		RF(5) <= di5rf;
+		if((logic_in(5)='1') and (path_decider='1') and (rf_write='1')) THEN
+		RF(5) <= Din_rf(5);
 		end if;
 
-		if((logic_in(6)='1') and (path_decider='1')) THEN
-		RF(6) <= di6rf;
+		if((logic_in(6)='1') and (path_decider='1') and (rf_write='1')) THEN
+		RF(6) <= Din_rf(6);
 		end if;
 
-		if((logic_in(7)='1') and (path_decider='1')) THEN
-		RF(7) <= di7rf;
+		if((logic_in(7)='1') and (path_decider='1') and (rf_write='1')) THEN
+		RF(7) <= Din_rf(7);
 		end if;
 
 	end if;
