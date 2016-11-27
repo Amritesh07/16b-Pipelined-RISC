@@ -27,7 +27,7 @@ stallflag: in std_logic;
 Instruction_pipeline: in matrix16(0 to 4); --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 carry_ex: in std_logic;
 zero_ex: in std_logic_vector(2 downto 0);  -- 0-LW_zero_sig, 1-ALU_zer_sig, 2-zero_sig
-regDest: in matrix3(0 to 4);               --0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
+regDest: in matrix3(0 to 3);               -- 0-ID, 1-RR, 2-EX, 3-MEM
 Lm_sel_r7: in std_logic;
 BEQequal: in std_logic;
 PCplus1 : in std_logic_vector(15 downto 0);
@@ -64,8 +64,8 @@ begin
       ------
       PC_var:=PCplus1;
 
-      if ( (regDest(3)="111" and Instruction_pipeline(3)(15 downto 12)="0100") or
-      (Lm_sel_r7='1' and Instruction_pipeline(3)(15 downto 12)="0110" ) ) then    -- check for hazard in mem stage LOAD instr
+      if ( (regDest(3)="111" and Instruction_pipeline(4)(15 downto 12)="0100") or
+      (Lm_sel_r7='1' and Instruction_pipeline(4)(15 downto 12)="0110" ) ) then    -- check for hazard in mem stage LOAD instr
           -- flush 4 stages
           var_instr_out(3)(15 downto 12) := "1111";
           var_instr_out(2)(15 downto 12) := "1111";
@@ -77,32 +77,33 @@ begin
                 PC_var:=lm_out;
           end if;
 
-      elsif ( regDest(2)="111" and Instruction_pipeline(2)(15 downto 14)="00"
-            and Instruction_pipeline(2)(15 downto 14) /= "11"  ) then----  R type
+      elsif ( regDest(2)="111" and Instruction_pipeline(3)(15 downto 14)="00"
+            and Instruction_pipeline(3)(15 downto 14) /= "11"  ) then----  R type
 
-          if  ( (Instruction_pipeline(2)(15 downto 12)="0001") or  ( Instruction_pipeline(2)(1)='1' and carry_ex='1') or
-              ( Instruction_pipeline(2)(0)='1' and
-              ((Instruction_pipeline(3)(15 downto 12)="0100" and zero_ex(0)='1') or (zero_ex(1)='1' and Instruction_pipeline(3)(15 downto 14)="00" and Instruction_pipeline(3)(13 downto 12)/="11" )
-              or (zero_ex(2)='1' and not(Instruction_pipeline(3)(15 downto 12)="0100") and not(Instruction_pipeline(3)(15 downto 14)="00" and Instruction_pipeline(3)(13 downto 12)/="11"))))
-              or (Instruction_pipeline(2)(1 downto 0)="00")) then
+          if  ( (Instruction_pipeline(3)(15 downto 12)="0001")  --adi
+              or  ( Instruction_pipeline(3)(1)='1' and carry_ex='1') or -- ADC
+              ( Instruction_pipeline(3)(0)='1' and      -- ADZ
+              ((Instruction_pipeline(4)(15 downto 12)="0100" and zero_ex(0)='1') or (zero_ex(1)='1' and Instruction_pipeline(4)(15 downto 14)="00" and Instruction_pipeline(4)(13 downto 12)/="11" )
+              or (zero_ex(2)='1' and not(Instruction_pipeline(4)(15 downto 12)="0100") and not(Instruction_pipeline(4)(15 downto 14)="00" and Instruction_pipeline(4)(13 downto 12)/="11"))))
+              or (Instruction_pipeline(3)(1 downto 0)="00")) then   -- ADD
               var_instr_out(2)(15 downto 12) := "1111";
               var_instr_out(1)(15 downto 12) := "1111";
               var_instr_out(0)(15 downto 12) := "1111";
               PC_var:=aluop;
           end if;
-      elsif ( (Instruction_pipeline(1)(15 downto 12)="1100" and BEQequal='1')
-            or Instruction_pipeline(1)(15 downto 12)="1001") then --- BEQ or JLR
+      elsif ( (Instruction_pipeline(2)(15 downto 12)="1100" and BEQequal='1')
+            or Instruction_pipeline(2)(15 downto 12)="1001") then --- BEQ or JLR
           var_instr_out(1)(15 downto 12) := "1111";
           var_instr_out(0)(15 downto 12) := "1111";
-          if Instruction_pipeline(1)(14)='1' then
+          if Instruction_pipeline(2)(14)='1' then
               PC_var:=Pc_Im6;
           else
               PC_var:=JLRreg;
           end if;
-      elsif (Instruction_pipeline(0)(15 downto 12)="1000" or
-            ( regDest(0)="111" and Instruction_pipeline(0)(15 downto 12)="0011")) then -- JAL or LHI ------
+      elsif (Instruction_pipeline(1)(15 downto 12)="1000" or
+            ( regDest(0)="111" and Instruction_pipeline(1)(15 downto 12)="0011")) then -- JAL or LHI ------
           var_instr_out(0)(15 downto 12) := "1111";
-          if Instruction_pipeline(0)(15)='1' then
+          if Instruction_pipeline(1)(15)='1' then
               PC_var:=Pc_Im9;
           else
               PC_var:=padder;
