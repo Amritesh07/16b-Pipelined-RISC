@@ -7,9 +7,9 @@ entity dRAM is
   port (
     clock   : in  std_logic;
     mem_ctr : in std_logic_vector(7 downto 0);
-    Din_mem: in DataInOutType;
-    Dout_mem: out DataInOutType;
-    Addr_mem: in AddressOutType;
+    Din_mem: in matrix16(7 downto 0);
+    Dout_mem: out matrix16(7 downto 0);
+    Addr_mem: in matrix16(7 downto 0);
     pathway: in std_logic;
     writeEN: in std_logic;
     load_mem: in std_logic;
