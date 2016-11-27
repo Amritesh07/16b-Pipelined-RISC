@@ -31,7 +31,7 @@ component DataRegister is
 	      clk, enable: in std_logic);
 end component;
 
-component padder is 
+component padder is
 port ( I : in std_logic_vector(8 downto 0);
 		 O : out std_logic_vector(15 downto 0));
 end component;
@@ -51,7 +51,7 @@ port( 	--- Input
 end component;
 
 
-component Add_1 is 
+component Add_1 is
 port(
 	I: in std_logic_vector(15 downto 0);
 	O: out std_logic_vector(15 downto 0)
@@ -148,7 +148,7 @@ component dRAM is
 end component;
 
 
-component AddressBlock is 
+component AddressBlock is
 port(
 	Ain: in std_logic_vector(15 downto 0);
 	Sel: in std_logic_vector(7 downto 0);
@@ -164,7 +164,7 @@ component GenericMux is
                 O : out std_logic_vector(dataWidth - 1 downto 0));
 end component;
 
-component Adder is 
+component Adder is
 port(
 	I1,I2: in std_logic_vector(15 downto 0);
 	O: out std_logic_vector(15 downto 0)
@@ -181,7 +181,7 @@ Lm_mem:       in matrix16(7 downto 0);  -- mem stage
 Lm_wb:        in matrix16(7 downto 0);   -- writeback stage ()
 mem_out:      in matrix16(1 downto 0);   -- 0 - mem , 1- writeback (single output)
 Lm_sel:       in matrix16(1 downto 0);    --0 - mem , 1- writeback (single output)
-regFiledata:  in matrix16(7 downto 0);  -- regFiledata[7] has to be connected to PC brought by the pipeline register
+RegFileCtrl:  in matrix16(7 downto 0);  -- RegFileCtrl[7] has to be connected to PC brought by the pipeline register
 carry :       in std_logic_vector(2 downto 0);
 zero:         in std_logic_vector(2 downto 0);
 regDataout:   out matrix16(7 downto 0)
@@ -198,15 +198,15 @@ end component;
 component InstructionDecoder is
 port(
 	 I16: in std_logic_vector(15 downto 0);
-	 RF: out RegFileData;
-	 DRAM: out DramData;
+	 RF: out RegFileCtrl;
+	 DRAM: out dramCtrl;
 	 A1,A2: out std_logic_vector(2 downto 0);
-	 M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);		
+	 M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);
 	 M3_sel,M8_sel: out std_logic_vector(1 downto 0);
 	 M2_sel,M4_sel,M5_sel: out std_logic_vector(2 downto 0)
 	 );
-	
-component Adder is 
+
+component Adder is
 port(
 	I1,I2: in std_logic_vector(15 downto 0);
 	O: out std_logic_vector(15 downto 0)
