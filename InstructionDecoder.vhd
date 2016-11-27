@@ -28,8 +28,8 @@ port(
 	 M1_sel,M6_sel,M7_sel,M9_sel: out std_logic_vector(0 downto 0);
 	 M3_sel: out std_logic_vector(1 downto 0);
 	 M4_sel,M5_sel: out std_logic_vector(2 downto 0);
-	 carry_old,zero_old: in std_logic
-
+	 carry_old,zero_old: in std_logic;
+	 ALUsel: out std_logic
 	 	);
 end entity;
 
@@ -84,7 +84,7 @@ begin
 		variable RF_var: RegFileCtrl;
 		variable DRAM_var: dramCtrl;
 		variable ALUsel_var: std_logic_vector(0 downto 0);
-		variable PCwrite_var,carryWrite_var,zeroWrite_var: std_logic;
+		variable carryWrite_var,zeroWrite_var: std_logic;
 		variable M1_sel_var,M6_sel_var,M7_sel_var,M9_sel_var: std_logic_vector(0 downto 0);
 		variable M3_sel_var: std_logic_vector(1 downto 0);
 		variable M2_sel_var,M4_sel_var,M5_sel_var,M8_sel_var: std_logic_vector(2 downto 0);
