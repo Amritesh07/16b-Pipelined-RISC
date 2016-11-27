@@ -28,6 +28,8 @@ TYPE matrix3 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(2 downto 0);
 TYPE matrix8 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(7 downto 0);
 type AddressOutType is array(0 to 7) of std_logic_vector(15 downto 0);
 type DataInOutType is array(0 to 7) of std_logic_vector(15 downto 0);
+type AddressOutType_bit is array(0 to 7) of bit_vector(15 downto 0);
+type DataInOutType_bit is array(0 to 7) of bit_vector(15 downto 0);
 type dramCtrl is Record
 		mem_ctr : std_logic_vector(7 downto 0);
 		pathway : bit;
@@ -112,10 +114,10 @@ component dRAM is
 	Din_mem: in DataInOutType;
 	Dout_mem: out DataInOutType;
 	Addr_mem: in AddressOutType;
-	pathway: in bit;
-	writeEN: in bit;
-	load_mem: in bit;
-	mem_loaded: out bit;
+	pathway: in std_logic;
+	writeEN: in std_logic;
+	load_mem: in std_logic;
+	mem_loaded: out std_logic;
 	ai_mem: in std_logic_vector(0 to 15);
 	di_mem: in std_logic_vector(15 downto 0);
 	do_mem: out std_logic_vector(15 downto 0)
