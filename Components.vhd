@@ -17,13 +17,30 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.Numeric_Std.all;
-use work.Types.all;
-use work.matrix.all;
-use work.Common.all;
-use work.matrixType.all;
+
 --======================
 package components is
 --======================
+
+type matrix is array(natural range <>) of std_logic_vector(15 downto 0);
+TYPE matrix16 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(15 downto 0);
+TYPE matrix3 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(2 downto 0);
+TYPE matrix8 IS ARRAY (NATURAL RANGE <>) OF std_logic_vector(7 downto 0);
+type AddressOutType is array(0 to 7) of std_logic_vector(15 downto 0);
+type DataInOutType is array(0 to 7) of std_logic_vector(15 downto 0);
+type dramCtrl is Record
+		mem_ctr : std_logic_vector(7 downto 0);
+		pathway : bit;
+		writeEN : bit;
+		load_mem : bit;
+	 end Record;
+type RegFileCtrl is Record
+	 		a3rf :  std_logic_vector(2 downto 0);
+	 		path_decider :  std_logic;
+	 		rf_write:  std_logic;
+	 		r7_write :  std_logic;
+	 		logic_in :  std_logic_vector(7 downto 0);
+	 	end record;
 component DataRegister is
 	generic (data_width:integer);
 	port (Din: in std_logic_vector(data_width-1 downto 0);
@@ -205,19 +222,13 @@ port(
 	 M3_sel,M8_sel: out std_logic_vector(1 downto 0);
 	 M2_sel,M4_sel,M5_sel: out std_logic_vector(2 downto 0)
 	 );
-
-component Adder is
-port(
-	I1,I2: in std_logic_vector(15 downto 0);
-	O: out std_logic_vector(15 downto 0)
-	);
 end component;
 
 component isEqual is
 port(I1,I2: in std_logic_vector(15 downto 0);
 		O: out std_logic);
 end component;
-end component;
+
 --==========
 end package;
 --==========
