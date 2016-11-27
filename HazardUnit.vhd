@@ -26,7 +26,7 @@ padder:in std_logic_vector(15 downto 0);
 stallflag: in std_logic;
 Instruction_pipeline: in matrix16(0 to 4); --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 carry_ex: in std_logic;
-zero_ex: in std_logic;
+zero_ex: in std_logic_vector(2 downto 0);  -- 0-LW_zero_sig, 1-ALU_zer_sig, 2-zero_sig
 regDest: in matrix3(0 to 4);               --0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 Lm_sel_r7: in std_logic;
 BEQequal: in std_logic;
@@ -48,6 +48,7 @@ begin
     variable var_instr_out: matrix16(0 to 4) := Instruction_pipeline;
     variable var_pipeline_reg_enable : std_logic_vector(0 to 4):="11111";
     variable var_pc_en: std_logic:='1';
+    variable zero_logic:std_logic:='1';
     variable PC_var:std_logic_vector(15 downto 0);
     begin
       ------
@@ -62,8 +63,9 @@ begin
       end if;
       ------
       PC_var:=PCplus1;
-      if ( (regDest(3)="111" and Instruction_pipeline(3)(15 downto 12)="0100")
-          or (Lm_sel_r7='1' and Instruction_pipeline(3)(15 downto 12)="0110" ) ) then    -- check for hazard in mem stage LOAD instr
+
+      if ( (regDest(3)="111" and Instruction_pipeline(3)(15 downto 12)="0100") or
+      (Lm_sel_r7='1' and Instruction_pipeline(3)(15 downto 12)="0110" ) ) then    -- check for hazard in mem stage LOAD instr
           -- flush 4 stages
           var_instr_out(3)(15 downto 12) := "1111";
           var_instr_out(2)(15 downto 12) := "1111";
@@ -78,8 +80,11 @@ begin
       elsif ( regDest(2)="111" and Instruction_pipeline(2)(15 downto 14)="00"
             and Instruction_pipeline(2)(15 downto 14) /= "11"  ) then----  R type
 
-          if (( Instruction_pipeline(2)(1)='1' and carry_ex='1') or ( Instruction_pipeline(2)(0)='1' and zero_ex='1')
-                or (Instruction_pipeline(2)(1 downto 0)="00")) then
+          if  ( (Instruction_pipeline(2)(15 downto 12)="0001") or  ( Instruction_pipeline(2)(1)='1' and carry_ex='1') or
+              ( Instruction_pipeline(2)(0)='1' and
+              ((Instruction_pipeline(3)(15 downto 12)="0100" and zero_ex(0)='1') or (zero_ex(1)='1' and Instruction_pipeline(3)(15 downto 14)="00" and Instruction_pipeline(3)(13 downto 12)/="11" )
+              or (zero_ex(2)='1' and not(Instruction_pipeline(3)(15 downto 12)="0100") and not(Instruction_pipeline(3)(15 downto 14)="00" and Instruction_pipeline(3)(13 downto 12)/="11"))))
+              or (Instruction_pipeline(2)(1 downto 0)="00")) then
               var_instr_out(2)(15 downto 12) := "1111";
               var_instr_out(1)(15 downto 12) := "1111";
               var_instr_out(0)(15 downto 12) := "1111";

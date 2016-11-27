@@ -189,7 +189,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
     elsif (Iword(0)(15 downto 12) /= "1111") then
 
             if(regDest(0)="001") then
-                  if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
+                  if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- ADD and NAND type instruction
                         if (Iword(0)(1 downto 0) = "00" ) then
                                 Reg1:=aluop(0);
                         else
