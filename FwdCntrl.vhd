@@ -41,12 +41,13 @@ signal stall: std_logic_vector(7 downto 0):=(others=>'0');
 begin
   --- ------------------------------process for R0-----------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
-          variable Reg0: std_logic_vector(15 downto 0):= (others=>'0');
+          variable Reg0: std_logic_vector(15 downto 0);
           variable var_stall: std_logic:='0';
           begin
 
             ---------------- ----------------------------------------
             ------------ forwrding for R0 from execute stage----------
+            Reg0:=regFiledata(0);
             var_stall:='0';
             if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
                 Reg0:=regFiledata(0);
@@ -173,12 +174,13 @@ end process;
   ------------------------------------- R1 PROCESS -----------------------------------------
   ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
-  variable Reg1:std_logic_vector(15 downto 0):= (others=>'0');
+  variable Reg1:std_logic_vector(15 downto 0);
   variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
+    Reg1:=regFiledata(1);
     var_stall:='0';
     if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg1:=regFiledata(1);
@@ -305,12 +307,13 @@ end process;
 ------------------------------------- R2 PROCESS -----------------------------------------
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
-  variable Reg2:std_logic_vector(15 downto 0):= (others=>'0');
+  variable Reg2:std_logic_vector(15 downto 0);
   variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
+    Reg2:=regFiledata(2);
     var_stall:='0';
     if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg2:=regFiledata(2);
@@ -436,12 +439,13 @@ end process;
 ------------------------------------- R3 PROCESS -----------------------------------------
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
-  variable Reg3:std_logic_vector(15 downto 0):= (others=>'0');
+  variable Reg3:std_logic_vector(15 downto 0);
   variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
+    Reg3:=regFiledata(3);
     var_stall:='0';
     if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg3:=regFiledata(3);
@@ -568,12 +572,13 @@ end process;
 ------------------------------------- R4 PROCESS -----------------------------------------
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
-  variable Reg4:std_logic_vector(15 downto 0):= (others=>'0');
+  variable Reg4:std_logic_vector(15 downto 0);
   variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
+    Reg4:=regFiledata(4);
     var_stall:='0';
     if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg4:=regFiledata(4);
@@ -701,12 +706,13 @@ end process;
 ------------------------------------- R5 PROCESS -----------------------------------------
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
-  variable Reg5:std_logic_vector(15 downto 0):= (others=>'0');
+  variable Reg5:std_logic_vector(15 downto 0);
   variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
+    Reg5:=regFiledata(5);
     var_stall:='0';
     if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg5:=regFiledata(5);
@@ -834,12 +840,13 @@ end process;
 ------------------------------------- R6 PROCESS -----------------------------------------
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
-  variable Reg6:std_logic_vector(15 downto 0):= (others=>'0');
+  variable Reg6:std_logic_vector(15 downto 0);
   variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
+    Reg6:=regFiledata(6);
     var_stall:='0';
     if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg6:=regFiledata(6);
@@ -967,12 +974,13 @@ end process;
 ------------------------------------- R7 PROCESS [PC] -------------------------------------
 ------------------------------------------------------------------------------------
 process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata,carry,zero)
-  variable Reg7:std_logic_vector(15 downto 0):= (others=>'0');
+  variable Reg7:std_logic_vector(15 downto 0);
   variable var_stall: std_logic:='0';
   begin
 
     ---------------- ----------------------------------------
     ------------ forwrding for R0 from execute stage----------
+    Reg7:=regFiledata(7);
     var_stall:='0';
     if (Iword(0)(15 downto 12) = "0110" or Iword(0)(15 downto 12) = "0100" ) then   -- if LM of execute or LW of execute
         Reg7:=regFiledata(7);

@@ -44,7 +44,9 @@ signal pipeline_reg_enable : std_logic_vector(0 to 4);
 signal pcEn:std_logic;
 signal PC_sig:std_logic_vector(15 downto 0);
 begin
-  process( Instruction_pipeline, Lm_sel_r7, carry_ex, zero_ex, stallflag, regDest,  BEQequal )
+  process( Instruction_pipeline, lw_out, lm_out, aluop, JLRreg, Pc_Im6, Pc_Im9, padder, PCplus1
+          ,Lm_sel_r7, carry_ex, zero_ex, stallflag, regDest,  BEQequal
+          )
     variable var_instr_out: matrix16(0 to 4) := Instruction_pipeline;
     variable var_pipeline_reg_enable : std_logic_vector(0 to 4):="11111";
     variable var_pc_en: std_logic:='1';
