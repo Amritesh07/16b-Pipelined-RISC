@@ -13,12 +13,10 @@ port(clk: in std_logic;
 	dram_addr_mem: out matrix16(7 downto 0);
 	dram_pathway: out std_logic;
 	dram_writeEN:out std_logic;
-	dram_load_mem:out std_logic;
 	dram_mem_loaded:in std_logic;
 	dram_ai_mem:out std_logic_vector(15 downto 0);
 	dram_di_mem:out std_logic_vector(15 downto 0);
 	dram_do_mem:in std_logic_vector(15 downto 0);
-	irom_load_mem:out std_logic;
 	irom_mem_loaded:in std_logic;
 	irom_address:out std_logic_vector(15 downto 0);
 	irom_dataout:in std_logic_vector(15 downto 0)
@@ -58,7 +56,7 @@ signal PC_write_en_sig: std_logic;
 signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4);
 signal stallflag_sig: std_logic;
 -- Multiplexer related signals
-signal M1_out_sig, M3_out_sig, M4_out_sig, M5_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
+signal M1_out_sig, M3_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
 signal M1_sel_sig: std_logic_vector(0 downto 0);
 -- condition code register related signals
 signal ALU_C_sig, ALU_Z_sig: std_logic;
@@ -67,7 +65,7 @@ signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
 -- Miscellaneous signals
 signal SE9_out: std_logic_vector(15 downto 0);
 signal LW_zero: std_logic_vector(0 downto 0);
-signal mem_loaded_sig, load_mem_sig, load_I_mem_sig, I_mem_loaded_sig: std_logic;
+signal mem_loaded_sig,  I_mem_loaded_sig: std_logic;
 signal HighZ16: std_logic_vector(15 downto 0):="ZZZZZZZZZZZZZZZZ";
 signal isEqualFlag, PC_write_sig, RF_write_sig: std_logic;
 signal regFileData_sig : matrix16(6 downto 0);
@@ -188,7 +186,7 @@ ALU0 : ALU port map(I1 => M6_out_sig, I2 => M7_out_sig, Sel => RR_EX_out_sig.ALU
 
 AddrBlock : AddressBlock port map(Ain => RR_EX_out_sig.D1, Sel => RR_EX_out_sig.DRAM.mem_ctr, Aout => EX_MEM_in_sig.A_multiple);
 
-isEqu: isEqual port map(I1 => M4_out_sig, I2 => M5_out_sig, O =>isEqualFlag);
+isEqu: isEqual port map(I1 => RR_EX_in_sig.D1, I2 => RR_EX_in_sig.D2, O =>isEqualFlag);
 isNull: isEqual port map(I1=>MEM_WB_in_sig.mem_out, I2=>null16, O => LW_zero(0));
 Add1 : Add_1 port map(I => IF_ID_in_sig.PC, O => IF_ID_in_sig.PC_1);
 
@@ -255,7 +253,7 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							lw_out => MEM_WB_in_sig.mem_out,
 							lm_out => MEM_WB_in_sig.D_multiple(7),
 							aluop => EX_MEM_in_sig.ALU_OUT,
-							JLRreg => M5_out_sig,
+							JLRreg => RR_EX_in_sig.D2,
 							Pc_Im6 => ID_RR_out_sig.PC_Imm6,
 							Pc_Im9 => ID_RR_in_sig.PC_Imm6,
 							padder => ID_RR_in_sig.Padder,
@@ -276,11 +274,11 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							Lm_sel_r7 => EX_MEM_out_sig.DRAM.mem_ctr(7),
 							BEQequal => isEqualFlag,
 							PCplus1 => IF_ID_in_sig.PC_1,
-							Instr_out(0) => IF_ID_in_sig.I16,
-							Instr_out(2) => RR_EX_out_sig.I16,
-							Instr_out(1) => EX_MEM_out_sig.I16,
-							Instr_out(3) => MEM_WB_out_sig.I16,
-							Instr_out(4) => EX_MEM_out_sig.I16,
+							Instr_out(0) => Instr_out_sig(0),
+							Instr_out(2) => Instr_out_sig(1),
+							Instr_out(1) => Instr_out_sig(2),
+							Instr_out(3) => Instr_out_sig(3),
+							Instr_out(4) => Instr_out_sig(4),
 							pipeline_enable => pipeline_enable_sig,  --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 							PC_write_en => PC_write_en_sig,
 							PCval => PC_val_sig);
@@ -291,14 +289,18 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							dram_addr_mem<=EX_MEM_out_sig.A_multiple;
 							dram_pathway<=EX_MEM_out_sig.DRAM.pathway;
 							dram_writeEN<=EX_MEM_out_sig.DRAM.writeEN;
-							dram_load_mem<=load_mem_sig;
 							mem_loaded_sig<=dram_mem_loaded;
 							dram_ai_mem<=EX_MEM_out_sig.ALU_OUT;
 							dram_di_mem<=EX_MEM_out_sig.D1;
 							MEM_WB_in_sig.mem_out<=dram_do_mem;
-							irom_load_mem<=load_I_mem_sig;
 							I_mem_loaded_sig<=irom_mem_loaded;
 							irom_address<=IF_ID_in_sig.PC;
 							Instruction_pipeline_sig(0)<=irom_dataout;
+
+Instr_out_sig(0) <= IF_ID_in_sig.I16;
+Instr_out_sig(1) <= ID_RR_in_sig.I16;
+Instr_out_sig(2) <= RR_EX_in_sig.I16;
+Instr_out_sig(3) <= EX_MEM_in_sig.I16;
+Instr_out_sig(4) <= MEM_WB_in_sig.I16;
 
 end arch;
