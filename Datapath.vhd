@@ -78,6 +78,8 @@ RR_EX : RR_EX_reg port map(Din => RR_EX_in_sig, Dout => RR_EX_out_sig, clk => cl
 EX_MEM : EX_MEM_reg port map(Din => EX_MEM_in_sig, Dout => EX_MEM_out_sig, clk => clk, enable => pipeline_enable_sig(3));
 MEM_WB : MEM_WB_reg port map(Din => MEM_WB_in_sig, Dout => MEM_WB_out_sig, clk => clk, enable => pipeline_enable_sig(4));
 
+IF_ID_in_sig.I16 <= Instr_out_sig(0);
+
 Instruction_pipeline_sig(1) <= IF_ID_out_sig.I16;
 ID_RR_in_sig.I16 <= Instr_out_sig(1);
 
@@ -302,10 +304,5 @@ I_mem_loaded_sig<=irom_mem_loaded;
 irom_address<=IF_ID_in_sig.PC;
 Instruction_pipeline_sig(0)<=irom_dataout;
 
-Instr_out_sig(0) <= IF_ID_in_sig.I16;
-Instr_out_sig(1) <= ID_RR_in_sig.I16;
-Instr_out_sig(2) <= RR_EX_in_sig.I16;
-Instr_out_sig(3) <= EX_MEM_in_sig.I16;
-Instr_out_sig(4) <= MEM_WB_in_sig.I16;
 
 end arch;
