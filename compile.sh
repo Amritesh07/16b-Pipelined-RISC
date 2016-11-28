@@ -6,7 +6,7 @@ ghdl -a dRAM.vhd
 ghdl -a FwdCntrl.vhd
 ghdl -a GenericMux.vhd
 ghdl -a InstructionDecoder.vhd
-ghdl -a iRom.vhd
+ghdl -a iROM.vhd
 ghdl -a PipelineRegister.vhd
 ghdl -a regfile.vhd
 ghdl -a HazardUnit.vhd
