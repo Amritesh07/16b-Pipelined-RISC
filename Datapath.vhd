@@ -51,8 +51,8 @@ signal EX_MEM_in_sig, EX_MEM_out_sig : EX_MEM_type;
 signal MEM_WB_in_sig, MEM_WB_out_sig : MEM_WB_type;
 -- Hazard Unit signals
 signal PC_val_sig: std_logic_vector(15 downto 0):=(others=>'0');
-signal pipeline_enable_sig,pipeline_enable_sig_temp: std_logic_vector(0 to 4);
-signal PC_write_en_sig,PC_write_en_sig_temp: std_logic;
+signal pipeline_enable_sig,pipeline_enable_sig_temp: std_logic_vector(0 to 4):=(others=>'0');
+signal PC_write_en_sig,PC_write_en_sig_temp,PC_write_en_sig_temp_delay: std_logic;
 signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4):=(others=>(others=>'1'));
 signal stallflag_sig: std_logic;
 -- Multiplexer related signals
@@ -118,6 +118,7 @@ MEM_WB_in_sig.I16 <= Instr_out_sig(4);
 
 ---------------------------
 PC_write_en_sig_temp<= PC_write_en_sig and irom_mem_loaded;
+
 PC_PROXY: DataRegister generic map(data_width => 16) port map(Din=> PC_val_sig,
  																													 Dout=> IF_ID_in_sig.PC,
 																													 clk=> clk,
@@ -255,7 +256,7 @@ ZeroReg: DataRegister generic map(data_width => 1) port map(enable =>zeroRegEn,
 																													Dout(0) =>EX_MEM_in_sig.C_old,
 																													clk =>clk
 																													);
-pipeline_enable_sig_temp<= pipeline_enable_sig and irom_mem_loaded; -- Added for Blocking propagation of Instrucgtion in initial phase until memory is written
+pipeline_enable_sig<= pipeline_enable_sig_temp when irom_mem_loaded='1' else "00000"; -- Added for Blocking propagation of Instrucgtion in initial phase until memory is written
 Hazard_Mitigation_Unit: HazardUnit port map (
 							lw_out => MEM_WB_in_sig.mem_out,
 							lm_out => MEM_WB_in_sig.D_multiple(7),

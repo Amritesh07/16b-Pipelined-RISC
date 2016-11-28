@@ -63,7 +63,7 @@ begin
 	A2_sig<=RB;
 
 
-	process(I16)
+	process(I16,opcode,CZ)
 		variable RF_var: RegFileCtrl;
 		variable DRAM_var: dramCtrl;
 		variable ALUsel_var: std_logic_vector(0 downto 0);
