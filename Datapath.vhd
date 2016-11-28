@@ -45,7 +45,7 @@ signal stallflag_sig: std_logic;
 signal M1_out_sig, M3_out_sig, M4_out_sig, M5_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
 signal M1_sel_sig: std_logic_vector(0 downto 0);
 -- condition code register related signals
-signal ALU_C_sig,ALU_Z_sig: std_logic;
+signal ALU_C_sig, ALU_Z_sig: std_logic;
 -- carry and zero register
 signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
 -- Miscellaneous signals
@@ -199,25 +199,35 @@ SE9: signExtend_9 port map(IN_9 => IF_ID_out_sig.I16(8 downto 0), OUT_16 => SE9_
 Pad: Padder port map(I => IF_ID_out_sig.I16(8 downto 0), O => ID_RR_in_sig.Padder);
 -- Carry and Zero Logic ( Embedded Here)-------------------
 carryRegEn <= RR_EX_out_sig.RF.CarryEn
-					when (	not (RR_EX_out_sig.I16(15 downto 12) = "1111")
-								or (EX_MEM_in_sig.C_old and RR_EX_out_sig.I16(15 downto 12)=op_AD and RR_EX_out_sig.I16(1 downto 0)= CZ_carry))
+					when (
+								(not (RR_EX_out_sig.I16(15 downto 12) = "1111"))
+								or
+								(EX_MEM_in_sig.C_old='1' and RR_EX_out_sig.I16(15 downto 12)=op_AD and RR_EX_out_sig.I16(1 downto 0)= CZ_carry)
+							 )
 						else	'0';
 -- zero-- ** Correction Here
 zeroRegEn <= EX_MEM_out_sig.RF.ZeroEn
-					when ( not(RR_EX_out_sig.I16(15 downto 12 )="1111")
-					 			or (MEM_WB_in_sig.Z_old and RR_EX_out_sig.I16(15 downto 12)=AD and RR_EX_out_sig.I16(1 downto 0)= CZ_zero))
+					when (
+								(
+								 not(RR_EX_out_sig.I16(15 downto 12 )="1111")
+								)
+					 			or
+								(
+									(MEM_WB_in_sig.Z_old='1' and RR_EX_out_sig.I16(15 downto 12)=op_AD) and (RR_EX_out_sig.I16(1 downto 0)= CZ_zero)
+								)
+							 )
 						else '0';
 zeroRegDataIn <= LW_zero when ( EX_MEM_out_sig.I16(15 downto 12)=OP_LW)
 							else EX_MEM_out_sig.Z_old;
 ---------End of Carry and Zero Logic---------------------
-CarryReg: DataRegister generic map(data_width = 1) port map(enable =>carryRegEn,
-																														Din => ALU_C_sig,
-																														Dout =>EX_MEM_in_sig.C_old,
+CarryReg: DataRegister generic map(data_width => 1) port map(enable =>carryRegEn,
+																														Din(0) => ALU_C_sig,
+																														Dout(0) =>EX_MEM_in_sig.C_old,
 																														clk =>clk
 																														);
-ZeroReg: DataRegister generic map(data_width = 1) port map(enable =>zeroRegEn,
-																													Din => zeroRegDataIn,
-																													Dout =>EX_MEM_in_sig.C_old,
+ZeroReg: DataRegister generic map(data_width => 1) port map(enable =>zeroRegEn,
+																													Din(0) => zeroRegDataIn,
+																													Dout(0) =>EX_MEM_in_sig.C_old,
 																													clk =>clk
 																													);
 Hazard_Mitigation_Unit: HazardUnit port map (
@@ -237,12 +247,11 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							Instruction_pipeline(4) => Instruction_pipeline_sig(4),
 							 --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 							carry_ex => EX_MEM_in_sig.C_old,
-							zero_ex(0)=>LW_zero,zero_ex(1)=> EX_MEM_out_sig.z_old,zero_ex(2)=>MEM_WB_in_sig.z_old,
+							zero_ex(0)=>LW_zero, zero_ex(1)=> EX_MEM_out_sig.z_old, zero_ex(2)=>MEM_WB_in_sig.z_old,
 							regDest(0) => ID_RR_in_sig.RF.a3rf,
 							regDest(1) => ID_RR_out_sig.RF.a3rf,
 							regDest(2) => RR_EX_out_sig.RF.a3rf,
 							regDest(3) => EX_MEM_out_sig.RF.a3rf,
-							regDest(4) => MEM_WB_out_sig.RF.a3rf,
 							Lm_sel_r7 => EX_MEM_out_sig.DRAM.mem_ctr(7),
 							BEQequal => isEqualFlag,
 							PCplus1 => IF_ID_in_sig.PC_1,
