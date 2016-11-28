@@ -50,10 +50,10 @@ signal ALU_C_sig, ALU_Z_sig: std_logic;
 signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
 -- Miscellaneous signals
 signal SE9_out: std_logic_vector(15 downto 0);
-signal isEqualFlag, LW_zero: std_logic;
+signal LW_zero: std_logic_vector(0 downto 0);
 signal mem_loaded_sig, load_mem_sig, load_I_mem_sig, I_mem_loaded_sig: std_logic;
 signal HighZ16: std_logic_vector(15 downto 0):="ZZZZZZZZZZZZZZZZ";
-signal PC_write_sig, RF_write_sig: std_logic;
+signal isEqualFlag, PC_write_sig, RF_write_sig: std_logic;
 signal regFileData_sig : matrix16(6 downto 0);
 begin
 ----------- Pipeline Register
@@ -162,7 +162,7 @@ FLogic: FwdCntrl port map(padder(0) => RR_EX_out_sig.Padder,	padder(1) => EX_MEM
 													regFiledata(6 downto 0)=> regFileData_sig(6 downto 0),-- regFiledata[7] has to be connected to PC brought by the pipeline register
 													regFiledata(7)=> ID_RR_out_sig.PC,
 													carry(0)=>EX_MEM_in_sig.C_old,carry(1)=>EX_MEM_out_sig.C_old, carry(2)=> MEM_WB_out_sig.C_old,
-													zero(0)=>LW_zero,zero(1)=> EX_MEM_out_sig.z_old,zero(2)=>MEM_WB_in_sig.z_old,zero(3)=>MEM_WB_out_sig.z_old,
+													zero(0)=>LW_zero(0),zero(1)=> EX_MEM_out_sig.z_old,zero(2)=>MEM_WB_in_sig.z_old,zero(3)=>MEM_WB_out_sig.z_old,
 													regDataout => RR_EX_in_sig.D_multiple,
 													stallflag => stallflag_sig
 													);
@@ -179,7 +179,7 @@ InstMem: iROM port map(clock => clk, load_mem => load_I_mem_sig, mem_loaded => I
 AddrBlock : AddressBlock port map(Ain => RR_EX_out_sig.D1, Sel => RR_EX_out_sig.DRAM.mem_ctr, Aout => EX_MEM_in_sig.A_multiple);
 
 isEqu: isEqual port map(I1 => M4_out_sig, I2 => M5_out_sig, O =>isEqualFlag);
-isNull: isEqual port map(I1=>MEM_WB_in_sig.mem_out, I2=>null16, O => LW_zero);
+isNull: isEqual port map(I1=>MEM_WB_in_sig.mem_out, I2=>null16, O => LW_zero(0));
 Add1 : Add_1 port map(I => IF_ID_in_sig.PC, O => IF_ID_in_sig.PC_1);
 
 ------------------------------ we need to re look at the mux select encodings ---------------------
@@ -193,7 +193,18 @@ M7: GenericMux generic map(seln => 1) port map(I(0) => RR_EX_out_sig.D2, I(1) =>
 
 Adder1: Adder port map(I1 => IF_ID_out_sig.PC, I2 => M1_out_sig, O => ID_RR_in_sig.PC_Imm6);
 
---DEC: InstructionDecoder port map();
+DEC: InstructionDecoder port map(
+			I16 => IF_ID_out_sig.I16,
+			RF => ID_RR_in_sig.RF,
+			DRAM => ID_RR_in_sig.DRAM,
+			M1_sel => M1_sel_sig,
+			M6_sel => ID_RR_in_sig.M6_sel,
+			M7_sel => ID_RR_in_sig.M7_sel,
+			M3_sel => ID_RR_in_sig.M3_sel,
+			M4_sel => ID_RR_in_sig.M4_sel,
+			M5_sel => ID_RR_in_sig.M5_sel,
+			ALUsel(0) => ID_RR_in_sig.ALUsel
+);
 SE6: SignExtend_6 port map(IN_6 => IF_ID_out_sig.I16(5 downto 0), OUT_16 => ID_RR_in_sig.SE6);
 SE9: signExtend_9 port map(IN_9 => IF_ID_out_sig.I16(8 downto 0), OUT_16 => SE9_out);
 Pad: Padder port map(I => IF_ID_out_sig.I16(8 downto 0), O => ID_RR_in_sig.Padder);
@@ -217,7 +228,7 @@ zeroRegEn <= EX_MEM_out_sig.RF.ZeroEn
 								)
 							 )
 						else '0';
-zeroRegDataIn <= LW_zero when ( EX_MEM_out_sig.I16(15 downto 12)=OP_LW)
+zeroRegDataIn <= LW_zero(0) when ( EX_MEM_out_sig.I16(15 downto 12)=OP_LW)
 							else EX_MEM_out_sig.Z_old;
 ---------End of Carry and Zero Logic---------------------
 CarryReg: DataRegister generic map(data_width => 1) port map(enable =>carryRegEn,
@@ -247,7 +258,7 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							Instruction_pipeline(4) => Instruction_pipeline_sig(4),
 							 --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 							carry_ex => EX_MEM_in_sig.C_old,
-							zero_ex(0)=>LW_zero, zero_ex(1)=> EX_MEM_out_sig.z_old, zero_ex(2)=>MEM_WB_in_sig.z_old,
+							zero_ex(0)=>LW_zero(0), zero_ex(1)=> EX_MEM_out_sig.z_old, zero_ex(2)=>MEM_WB_in_sig.z_old,
 							regDest(0) => ID_RR_in_sig.RF.a3rf,
 							regDest(1) => ID_RR_out_sig.RF.a3rf,
 							regDest(2) => RR_EX_out_sig.RF.a3rf,
