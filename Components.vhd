@@ -288,6 +288,28 @@ component  MEM_WB_reg is
 	      clk, enable: in std_logic);
 end component;
 
+component Datapath is
+port(
+clk: in std_logic;
+	mem_ctr_out: out std_logic_vector(7 downto 0);
+	din_mem_out: out matrix16(7 downto 0);
+	dout_mem_in: in matrix16(7 downto 0);
+	dram_addr_mem: out matrix16(7 downto 0);
+	dram_pathway: out std_logic;
+	dram_writeEN:out std_logic;
+	dram_load_mem:out std_logic;
+	dram_mem_loaded:in std_logic;
+	dram_ai_mem:out std_logic_vector(15 downto 0);
+	dram_di_mem:out std_logic_vector(15 downto 0);
+	dram_do_mem:in std_logic_vector(15 downto 0);
+	irom_load_mem:out std_logic;
+	irom_mem_loaded:in std_logic;
+	irom_address:out std_logic_vector(15 downto 0);
+	irom_dataout:in std_logic_vector(15 downto 0)
+
+	);
+end component;
+
 --==========
 end components;
 --==========
