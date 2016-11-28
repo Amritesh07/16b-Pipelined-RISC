@@ -281,8 +281,8 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							BEQequal => isEqualFlag,
 							PCplus1 => IF_ID_in_sig.PC_1,
 							Instr_out(0) => Instr_out_sig(0),
-							Instr_out(2) => Instr_out_sig(1),
-							Instr_out(1) => Instr_out_sig(2),
+							Instr_out(1) => Instr_out_sig(1),
+							Instr_out(2) => Instr_out_sig(2),
 							Instr_out(3) => Instr_out_sig(3),
 							Instr_out(4) => Instr_out_sig(4),
 							pipeline_enable => pipeline_enable_sig,  --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
