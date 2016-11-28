@@ -6,72 +6,73 @@ use work.components.all;
 
 
 entity Datapath is
-port(clk: in std_logic;
-	mem_ctr_out: out std_logic_vector(7 downto 0);
-	din_mem_out: out matrix16(7 downto 0);
-	dout_mem_in: in matrix16(7 downto 0);
-	dram_addr_mem: out matrix16(7 downto 0);
-	dram_pathway: out std_logic;
-	dram_writeEN:out std_logic;
-	dram_mem_loaded:in std_logic;
-	dram_ai_mem:out std_logic_vector(15 downto 0);
-	dram_di_mem:out std_logic_vector(15 downto 0);
-	dram_do_mem:in std_logic_vector(15 downto 0);
-	irom_mem_loaded:in std_logic;
-	irom_address:out std_logic_vector(15 downto 0);
-	irom_dataout:in std_logic_vector(15 downto 0)
-
+port(
+			clk: in std_logic;
+			mem_ctr_out: out std_logic_vector(7 downto 0);
+			din_mem_out: out matrix16(7 downto 0);
+			dout_mem_in: in matrix16(7 downto 0);
+			dram_addr_mem: out matrix16(7 downto 0);
+			dram_pathway: out std_logic;
+			dram_writeEN:out std_logic;
+			dram_mem_loaded:in std_logic;
+			dram_ai_mem:out std_logic_vector(15 downto 0);
+			dram_di_mem:out std_logic_vector(15 downto 0);
+			dram_do_mem:in std_logic_vector(15 downto 0);
+			irom_mem_loaded:in std_logic;
+			irom_address:out std_logic_vector(15 downto 0);
+			irom_dataout:in std_logic_vector(15 downto 0)
 	);
 end Datapath;
 
 architecture arch of Datapath is
---==================BEGIN====================
-constant CZ_zero: std_logic_vector(1 downto 0):= "01";
-constant CZ_carry: std_logic_vector(1 downto 0):= "10";
-constant CZ_none : std_logic_vector(1 downto 0):= "00";
-constant OP_AD:  Std_Logic_Vector(3 downto 0) := "0000";
-constant OP_ADI: Std_Logic_Vector(3 downto 0) := "0001";
-constant OP_ND:  Std_Logic_Vector(3 downto 0) := "0010";
-constant OP_LHI: Std_Logic_Vector(3 downto 0) := "0011";
-constant OP_LW:  Std_Logic_Vector(3 downto 0) := "0100";
-constant OP_SW:  Std_Logic_Vector(3 downto 0) := "0101";
-constant OP_LM:  Std_Logic_Vector(3 downto 0) := "0110";
-constant OP_SM:  Std_Logic_Vector(3 downto 0) := "0111";
-constant OP_BEQ: Std_Logic_Vector(3 downto 0) := "1100";
-constant OP_JAL: Std_Logic_Vector(3 downto 0) := "1000";
-constant OP_JLR: Std_Logic_Vector(3 downto 0) := "1001";
+			--==================BEGIN====================
+			constant CZ_zero: std_logic_vector(1 downto 0):= "01";
+			constant CZ_carry: std_logic_vector(1 downto 0):= "10";
+			constant CZ_none : std_logic_vector(1 downto 0):= "00";
+			constant OP_AD:  Std_Logic_Vector(3 downto 0) := "0000";
+			constant OP_ADI: Std_Logic_Vector(3 downto 0) := "0001";
+			constant OP_ND:  Std_Logic_Vector(3 downto 0) := "0010";
+			constant OP_LHI: Std_Logic_Vector(3 downto 0) := "0011";
+			constant OP_LW:  Std_Logic_Vector(3 downto 0) := "0100";
+			constant OP_SW:  Std_Logic_Vector(3 downto 0) := "0101";
+			constant OP_LM:  Std_Logic_Vector(3 downto 0) := "0110";
+			constant OP_SM:  Std_Logic_Vector(3 downto 0) := "0111";
+			constant OP_BEQ: Std_Logic_Vector(3 downto 0) := "1100";
+			constant OP_JAL: Std_Logic_Vector(3 downto 0) := "1000";
+			constant OP_JLR: Std_Logic_Vector(3 downto 0) := "1001";
 
-signal null16: std_logic_vector(15 downto 0):="0000000000000000";
-signal done_sig: std_logic;
--- pipeline related signals
-signal IF_ID_in_sig, IF_ID_out_sig: IF_ID_type;
-signal ID_RR_in_sig, ID_RR_out_sig: ID_RR_type;
-signal RR_EX_in_sig, RR_EX_out_sig: RR_EX_type;
-signal EX_MEM_in_sig, EX_MEM_out_sig : EX_MEM_type;
-signal MEM_WB_in_sig, MEM_WB_out_sig : MEM_WB_type;
--- Hazard Unit signals
-signal PC_val_sig: std_logic_vector(15 downto 0);
-signal pipeline_enable_sig: std_logic_vector(0 to 4);
-signal PC_write_en_sig: std_logic;
-signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4);
-signal stallflag_sig: std_logic;
--- Multiplexer related signals
-signal M1_out_sig, M3_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
-signal M1_sel_sig: std_logic_vector(0 downto 0);
--- condition code register related signals
-signal ALU_C_sig, ALU_Z_sig: std_logic;
--- carry and zero register
-signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
--- Miscellaneous signals
-signal SE9_out: std_logic_vector(15 downto 0);
-signal LW_zero: std_logic_vector(0 downto 0);
-signal mem_loaded_sig,  I_mem_loaded_sig: std_logic;
-signal HighZ16: std_logic_vector(15 downto 0):="ZZZZZZZZZZZZZZZZ";
-signal isEqualFlag, PC_write_sig, RF_write_sig: std_logic;
-signal regFileData_sig : matrix16(6 downto 0);
+			signal null16: std_logic_vector(15 downto 0):="0000000000000000";
+			signal done_sig: std_logic;
+			-- pipeline related signals
+			signal IF_ID_in_sig, IF_ID_out_sig: IF_ID_type;
+			signal ID_RR_in_sig, ID_RR_out_sig: ID_RR_type;
+			signal RR_EX_in_sig, RR_EX_out_sig: RR_EX_type;
+			signal EX_MEM_in_sig, EX_MEM_out_sig : EX_MEM_type;
+			signal MEM_WB_in_sig, MEM_WB_out_sig : MEM_WB_type;
+			-- Hazard Unit signals
+			signal PC_val_sig: std_logic_vector(15 downto 0):="0000000000000000";
+			signal pipeline_enable_sig: std_logic_vector(0 to 4);
+			signal PC_write_en_sig, PC_write_en_sig_temp: std_logic;
+			signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4);
+			signal stallflag_sig: std_logic;
+			-- Multiplexer related signals
+			signal M1_out_sig, M3_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
+			signal M1_sel_sig: std_logic_vector(0 downto 0);
+			-- condition code register related signals
+			signal ALU_C_sig, ALU_Z_sig: std_logic;
+			-- carry and zero register
+			signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
+			-- Miscellaneous signals
+			signal SE9_out: std_logic_vector(15 downto 0);
+			signal LW_zero: std_logic_vector(0 downto 0);
+			signal mem_loaded_sig,  I_mem_loaded_sig: std_logic;
+			signal HighZ16: std_logic_vector(15 downto 0):="ZZZZZZZZZZZZZZZZ";
+			signal isEqualFlag, PC_write_sig, RF_write_sig: std_logic;
+			signal regFileData_sig : matrix16(6 downto 0);
 begin
+
 ----------- Pipeline Register
-IF_ID : IF_ID_reg port map(Din => IF_ID_in_sig, Dout => IF_ID_out_sig, clk => clk, enable => pipeline_enable_sig(0));
+IF_ID : IF_ID_reg port map(Din => IF_ID_in_sig, Dout => IF_ID_out_sig, clk => clk, enable => pipeline_enable_sig(0));		--First Pipeline register
 ID_RR : ID_RR_reg port map(Din => ID_RR_in_sig, Dout => ID_RR_out_sig, clk => clk, enable => pipeline_enable_sig(1));
 RR_EX : RR_EX_reg port map(Din => RR_EX_in_sig, Dout => RR_EX_out_sig, clk => clk, enable => pipeline_enable_sig(2));
 EX_MEM : EX_MEM_reg port map(Din => EX_MEM_in_sig, Dout => EX_MEM_out_sig, clk => clk, enable => pipeline_enable_sig(3));
@@ -110,13 +111,15 @@ MEM_WB_in_sig.Padder <= EX_MEM_out_sig.Padder;
 MEM_WB_in_sig.ALU_OUT <= EX_MEM_out_sig.ALU_OUT;
 MEM_WB_in_sig.RF <= EX_MEM_out_sig.RF;
 MEM_WB_in_sig.M3_sel <= EX_MEM_out_sig.M3_sel;
+MEM_WB_in_sig.c_old <= EX_MEM_out_sig.c_old;
 MEM_WB_in_sig.I16 <= Instr_out_sig(4);
 
 ---------------------------
+PC_write_en_sig_temp<= PC_write_en_sig and irom_mem_loaded;
 PC_PROXY: DataRegister generic map(data_width => 16) port map(Din=> PC_val_sig,
  																													 Dout=> IF_ID_in_sig.PC,
 																													 clk=> clk,
-																													 enable=> PC_write_en_sig);
+																													 enable=> PC_write_en_sig_temp);
 RF_write_sig <= '0' when
 												(
 														MEM_WB_out_sig.I16(15 downto 12) ="1111"
@@ -156,27 +159,28 @@ RF : Regfile port map(
 									Dout_rf(6 downto 0) => regFileData_sig(6 downto 0),
 									Dout_rf(7) => HighZ16,
 									a3rf => MEM_WB_out_sig.RF.a3rf,
-									d3rf =>M3_out_sig,
+									d3rf => M3_out_sig,
 									d4rf => MEM_WB_out_sig.PC_1,
 									path_decider => MEM_WB_out_sig.RF.path_decider,
 									rf_write => RF_write_sig,
 									pc_write =>PC_write_sig
 									);
 
-FLogic: FwdCntrl port map(padder(0) => RR_EX_out_sig.Padder,	padder(1) => EX_MEM_out_sig.Padder,	padder(2) => MEM_WB_out_sig.Padder,
-													PC_1(0) => RR_EX_out_sig.PC_1, PC_1(1) => EX_MEM_out_sig.PC_1, PC_1(2) => MEM_WB_out_sig.PC_1,
-													aluop(0) => EX_MEM_in_sig.ALU_OUT,aluop(1) => EX_MEM_out_sig.PC_1,aluop(2) => MEM_WB_out_sig.PC_1,
-													regDest(0) => RR_EX_out_sig.RF.a3rf,regDest(1) => EX_MEM_out_sig.RF.a3rf,regDest(2) => MEM_WB_out_sig.RF.a3rf,
-													Iword(0)  =>  RR_EX_out_sig.I16,Iword(1) => EX_MEM_out_sig.I16,Iword(2) => MEM_WB_out_sig.I16,
-													Lm_mem	=> MEM_WB_in_sig.D_multiple,  -- mem stage
-													Lm_wb => MEM_WB_out_sig.D_multiple,   -- writeback stage ()
-													mem_out(0) => MEM_WB_in_sig.mem_out,   -- 0 - mem , 1- writeback (single output)
+FLogic: FwdCntrl port map(padder(0) => RR_EX_out_sig.Padder,      padder(1) => EX_MEM_out_sig.Padder,	      padder(2) => MEM_WB_out_sig.Padder,
+													PC_1(0) => RR_EX_out_sig.PC_1,          PC_1(1) => EX_MEM_out_sig.PC_1,           PC_1(2) => MEM_WB_out_sig.PC_1,
+													aluop(0) => EX_MEM_in_sig.ALU_OUT,      aluop(1) => EX_MEM_out_sig.PC_1,          aluop(2) => MEM_WB_out_sig.PC_1,
+													regDest(0) => RR_EX_out_sig.RF.a3rf,    regDest(1) => EX_MEM_out_sig.RF.a3rf,     regDest(2) => MEM_WB_out_sig.RF.a3rf,
+													Iword(0)  =>  RR_EX_out_sig.I16,        Iword(1) => EX_MEM_out_sig.I16,           Iword(2) => MEM_WB_out_sig.I16,
+													Lm_mem	=> MEM_WB_in_sig.D_multiple,    -- mem stage
+													Lm_wb => MEM_WB_out_sig.D_multiple,     -- writeback stage ()
+													mem_out(0) => MEM_WB_in_sig.mem_out,    -- 0 - mem , 1- writeback (single output)
 													mem_out(1) => MEM_WB_out_sig.mem_out,
-													Lm_sel(0) =>RR_EX_out_sig.DRAM.mem_ctr, Lm_sel(1) => EX_MEM_out_sig.DRAM.mem_ctr ,Lm_sel(2) => MEM_WB_out_sig.RF.logic_in ,   --0 - execute , 1- mem, 2- writeback (single output)
+													Lm_sel(0) =>RR_EX_out_sig.DRAM.mem_ctr, Lm_sel(1) => EX_MEM_out_sig.DRAM.mem_ctr, Lm_sel(2) => MEM_WB_out_sig.RF.logic_in ,   --0 - execute , 1- mem, 2- writeback (single output)
 													regFiledata(6 downto 0)=> regFileData_sig(6 downto 0),-- regFiledata[7] has to be connected to PC brought by the pipeline register
 													regFiledata(7)=> ID_RR_out_sig.PC,
-													carry(0)=>EX_MEM_in_sig.C_old,carry(1)=>EX_MEM_out_sig.C_old, carry(2)=> MEM_WB_out_sig.C_old,
-													zero(0)=>LW_zero(0),zero(1)=> EX_MEM_out_sig.z_old,zero(2)=>MEM_WB_in_sig.z_old,zero(3)=>MEM_WB_out_sig.z_old,
+													carry(0)=>EX_MEM_in_sig.C_old,          carry(1)=>EX_MEM_out_sig.C_old,           carry(2)=> MEM_WB_out_sig.C_old,
+													zero(0)=>LW_zero(0),                    zero(1)=> EX_MEM_out_sig.z_old,           zero(2)=>MEM_WB_in_sig.z_old,
+													zero(3)=>MEM_WB_out_sig.z_old,
 													regDataout => RR_EX_in_sig.D_multiple,
 													stallflag => stallflag_sig
 													);
@@ -266,7 +270,7 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							Instruction_pipeline(4) => Instruction_pipeline_sig(4),
 							 --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 							carry_ex => EX_MEM_in_sig.C_old,
-							zero_ex(0)=>LW_zero(0), zero_ex(1)=> EX_MEM_out_sig.z_old, zero_ex(2)=>MEM_WB_in_sig.z_old,
+							zero_ex(0)=>LW_zero(0), zero_ex(1)=> EX_MEM_out_sig.z_old, zero_ex(2)=> MEM_WB_in_sig.z_old,
 							regDest(0) => ID_RR_in_sig.RF.a3rf,
 							regDest(1) => ID_RR_out_sig.RF.a3rf,
 							regDest(2) => RR_EX_out_sig.RF.a3rf,
@@ -281,21 +285,22 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							Instr_out(4) => Instr_out_sig(4),
 							pipeline_enable => pipeline_enable_sig,  --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 							PC_write_en => PC_write_en_sig,
-							PCval => PC_val_sig);
+							PCval => PC_val_sig
+							);
 
-							mem_ctr_out<=EX_MEM_out_sig.DRAM.mem_ctr;
-							din_mem_out<=EX_MEM_out_sig.D_multiple;
-							MEM_WB_in_sig.D_multiple<=dout_mem_in;
-							dram_addr_mem<=EX_MEM_out_sig.A_multiple;
-							dram_pathway<=EX_MEM_out_sig.DRAM.pathway;
-							dram_writeEN<=EX_MEM_out_sig.DRAM.writeEN;
-							mem_loaded_sig<=dram_mem_loaded;
-							dram_ai_mem<=EX_MEM_out_sig.ALU_OUT;
-							dram_di_mem<=EX_MEM_out_sig.D1;
-							MEM_WB_in_sig.mem_out<=dram_do_mem;
-							I_mem_loaded_sig<=irom_mem_loaded;
-							irom_address<=IF_ID_in_sig.PC;
-							Instruction_pipeline_sig(0)<=irom_dataout;
+mem_ctr_out<=EX_MEM_out_sig.DRAM.mem_ctr;
+din_mem_out<=EX_MEM_out_sig.D_multiple;
+MEM_WB_in_sig.D_multiple<=dout_mem_in;
+dram_addr_mem<=EX_MEM_out_sig.A_multiple;
+dram_pathway<=EX_MEM_out_sig.DRAM.pathway;
+dram_writeEN<='0' when (RR_EX_out_sig.I16(15 downto 12 )="1111") else EX_MEM_out_sig.DRAM.writeEN;
+mem_loaded_sig<=dram_mem_loaded;
+dram_ai_mem<=EX_MEM_out_sig.ALU_OUT;
+dram_di_mem<=EX_MEM_out_sig.D1;
+MEM_WB_in_sig.mem_out<=dram_do_mem;
+I_mem_loaded_sig<=irom_mem_loaded;
+irom_address<=IF_ID_in_sig.PC;
+Instruction_pipeline_sig(0)<=irom_dataout;
 
 Instr_out_sig(0) <= IF_ID_in_sig.I16;
 Instr_out_sig(1) <= ID_RR_in_sig.I16;
