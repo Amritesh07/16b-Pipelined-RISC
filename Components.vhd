@@ -38,7 +38,8 @@ type RegFileCtrl is Record
 	 		rf_write:  std_logic;
 	 		r7_write :  std_logic;
 	 		logic_in :  std_logic_vector(7 downto 0);
-			CarryEn: std_logic
+			CarryEn: std_logic;
+	  	zeroEN: std_logic;
 	 	end record;
 component DataRegister is
 	generic (data_width:integer);
@@ -174,10 +175,7 @@ DRAM: out dramCtrl;
 M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);
 M3_sel: out std_logic_vector(1 downto 0);
 M4_sel,M5_sel: out std_logic_vector(2 downto 0);
-ALUsel: out std_logic_vector(0 downto 0);
-PCwrite: out std_logic;
-carryWrite: out std_logic;
-zeroWrite:out std_logic
+ALUsel: out std_logic_vector(0 downto 0)
 	 );
 end component;
 
