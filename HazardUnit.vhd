@@ -31,7 +31,7 @@ regDest: in matrix3(0 to 3);               -- 0-ID, 1-RR, 2-EX, 3-MEM
 Lm_sel_r7: in std_logic;
 BEQequal: in std_logic;
 PCplus1 : in std_logic_vector(15 downto 0);
-Instr_out: out matrix16(0 to 4);
+Instr_out: out matrix16(0 to 4):=(others=>(others=>'0'));
 pipeline_enable: out std_logic_vector(0 to 4);  --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 PC_write_en: out std_logic;
 PCval: out std_logic_vector(15 downto 0)
@@ -39,10 +39,10 @@ PCval: out std_logic_vector(15 downto 0)
 end HazardUnit ;
 -----
 architecture behave of HazardUnit is
-signal Stalled_flushed_instr: matrix16(0 to 4);
-signal pipeline_reg_enable : std_logic_vector(0 to 4);
-signal pcEn:std_logic;
-signal PC_sig:std_logic_vector(15 downto 0);
+signal Stalled_flushed_instr: matrix16(0 to 4):=(others=>(others=>'1'));
+signal pipeline_reg_enable : std_logic_vector(0 to 4):=(others=>'1');
+signal pcEn:std_logic:='1';
+signal PC_sig:std_logic_vector(15 downto 0):=(others=>'0');
 begin
   process( Instruction_pipeline, lw_out, lm_out, aluop, JLRreg, Pc_Im6, Pc_Im9, padder, PCplus1
           ,Lm_sel_r7, carry_ex, zero_ex, stallflag, regDest,  BEQequal
@@ -111,11 +111,13 @@ begin
               PC_var:=padder;
           end if;
       end if;
+      var_instr_out := Instruction_pipeline;
       PC_sig<=PC_var;
       Stalled_flushed_instr <= var_instr_out;
       pcEn<=var_pc_en;
       pipeline_reg_enable <= var_pipeline_reg_enable;
   end process;
+ --Print_Proc:process begin report "I'm here"; end process;
   PCval<=PC_sig;
   PC_write_en<=pcEn;
   Instr_out <= Stalled_flushed_instr;

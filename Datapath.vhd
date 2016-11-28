@@ -50,10 +50,10 @@ signal RR_EX_in_sig, RR_EX_out_sig: RR_EX_type;
 signal EX_MEM_in_sig, EX_MEM_out_sig : EX_MEM_type;
 signal MEM_WB_in_sig, MEM_WB_out_sig : MEM_WB_type;
 -- Hazard Unit signals
-signal PC_val_sig: std_logic_vector(15 downto 0);
+signal PC_val_sig: std_logic_vector(15 downto 0):=(others=>'0');
 signal pipeline_enable_sig: std_logic_vector(0 to 4);
-signal PC_write_en_sig: std_logic;
-signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4);
+signal PC_write_en_sig,PC_write_en_sig_temp: std_logic;
+signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4):=(others=>(others=>'1'));
 signal stallflag_sig: std_logic;
 -- Multiplexer related signals
 signal M1_out_sig, M3_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
@@ -113,10 +113,11 @@ MEM_WB_in_sig.M3_sel <= EX_MEM_out_sig.M3_sel;
 MEM_WB_in_sig.I16 <= Instr_out_sig(4);
 
 ---------------------------
+PC_write_en_sig_temp<= PC_write_en_sig and irom_mem_loaded;
 PC_PROXY: DataRegister generic map(data_width => 16) port map(Din=> PC_val_sig,
  																													 Dout=> IF_ID_in_sig.PC,
 																													 clk=> clk,
-																													 enable=> PC_write_en_sig);
+																													 enable=> PC_write_en_sig_temp);
 RF_write_sig <= '0' when
 												(
 														MEM_WB_out_sig.I16(15 downto 12) ="1111"

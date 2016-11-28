@@ -7,9 +7,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 entity DataRegister is
 	generic (data_width:integer);
-	port (Din: in std_logic_vector(data_width-1 downto 0);
-	      Dout: out std_logic_vector(data_width-1 downto 0);
-	      clk, enable: in std_logic);
+	port (Din: in std_logic_vector(data_width-1 downto 0):=(others=>'0');
+	      Dout: out std_logic_vector(data_width-1 downto 0):=(others=>'0');
+	      clk, enable: in std_logic:='0');
 end entity;
 architecture Behave of DataRegister is
 begin
@@ -25,7 +25,7 @@ end Behave;
 -------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
-entity padder is 
+entity padder is
 port ( I : in std_logic_vector(8 downto 0);
 		 O : out std_logic_vector(15 downto 0));
 end padder;
@@ -47,7 +47,7 @@ end entity SignExtend_9;
 
 architecture dataflow of SignExtend_9 is
 begin
-		OUT_16(8 downto 1)<=IN_9(8 downto 1); -- add the data 
+		OUT_16(8 downto 1)<=IN_9(8 downto 1); -- add the data
 		OUT_16(16 downto 9)<="11111111" when IN_9(9)='1' else "00000000";		-- add one to all places for twos complement representation
 end dataflow;
 
@@ -65,7 +65,7 @@ end entity SignExtend_6;
 
 architecture dataflow of SignExtend_6 is
 	begin
-	OUT_16(5 downto 1)<=IN_6(5 downto 1); -- add the data 
+	OUT_16(5 downto 1)<=IN_6(5 downto 1); -- add the data
 		OUT_16(16 downto 6)<="11111111111" when IN_6(6)='1' else "00000000000";		-- add one to all places for twos complement representation
 end dataflow;
 -------------------------------------------------------------
@@ -73,7 +73,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity Add_1 is 
+entity Add_1 is
 port(
 	I: in std_logic_vector(15 downto 0);
 	O: out std_logic_vector(15 downto 0)
@@ -89,7 +89,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity Adder is 
+entity Adder is
 port(
 	I1,I2: in std_logic_vector(15 downto 0);
 	O: out std_logic_vector(15 downto 0)
