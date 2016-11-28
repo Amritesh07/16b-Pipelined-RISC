@@ -63,7 +63,7 @@ begin
 	A2_sig<=RB;
 
 
-	process(I16)
+	process(I16,opcode,CZ,RC,A1_sig,A2_sig,RA,RB,Rsel)
 		variable RF_var: RegFileCtrl;
 		variable DRAM_var: dramCtrl;
 		variable ALUsel_var: std_logic_vector(0 downto 0);
@@ -72,6 +72,26 @@ begin
 		variable M4_sel_var,M5_sel_var: std_logic_vector(2 downto 0);
 
 	begin
+			RF_var.a3rf := "000";
+			RF_var.path_decider := '0';
+			RF_var.rf_write := '0';
+			RF_var.r7_write := '0';
+			RF_var.logic_in := "00000000";
+			RF_var.CarryEn := '0';
+			RF_var.zeroEN := '0';
+
+			DRAM_var.mem_ctr := "00000000";
+			DRAM_var.pathway := '0';
+			DRAM_var.writeEN := '0';
+			DRAM_var.load_mem := '0';
+
+			ALUsel_var := "0";
+			M1_sel_var := "0";
+			M6_sel_var := "0";
+			M7_sel_var := "0";
+			M3_sel_var := "00";
+			M4_sel_var := "000";
+			M5_sel_var := "000";
 
 			--ADD=====================================================
 			if(opcode=OP_AD and CZ=CZ_none) then		-- ADD instruction
@@ -601,7 +621,7 @@ begin
 				M4_sel_sig<=M4_sel_var;
 				M5_sel_sig<=M5_sel_var;
 				ALUsel_sig<=ALUsel_var;
-		
+
 
 	end process;
 	RF<=RF_sig;
