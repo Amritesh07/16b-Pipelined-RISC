@@ -51,7 +51,7 @@ signal EX_MEM_in_sig, EX_MEM_out_sig : EX_MEM_type;
 signal MEM_WB_in_sig, MEM_WB_out_sig : MEM_WB_type;
 -- Hazard Unit signals
 signal PC_val_sig: std_logic_vector(15 downto 0):=(others=>'0');
-signal pipeline_enable_sig: std_logic_vector(0 to 4);
+signal pipeline_enable_sig,pipeline_enable_sig_temp: std_logic_vector(0 to 4);
 signal PC_write_en_sig,PC_write_en_sig_temp: std_logic;
 signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4):=(others=>(others=>'1'));
 signal stallflag_sig: std_logic;
@@ -255,6 +255,7 @@ ZeroReg: DataRegister generic map(data_width => 1) port map(enable =>zeroRegEn,
 																													Dout(0) =>EX_MEM_in_sig.C_old,
 																													clk =>clk
 																													);
+pipeline_enable_sig_temp<= pipeline_enable_sig and irom_mem_loaded; -- Added for Blocking propagation of Instrucgtion in initial phase until memory is written
 Hazard_Mitigation_Unit: HazardUnit port map (
 							lw_out => MEM_WB_in_sig.mem_out,
 							lm_out => MEM_WB_in_sig.D_multiple(7),
@@ -285,7 +286,7 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							Instr_out(2) => Instr_out_sig(2),
 							Instr_out(3) => Instr_out_sig(3),
 							Instr_out(4) => Instr_out_sig(4),
-							pipeline_enable => pipeline_enable_sig,  --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
+							pipeline_enable => pipeline_enable_sig_temp,  --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 							PC_write_en => PC_write_en_sig,
 							PCval => PC_val_sig
 							);
