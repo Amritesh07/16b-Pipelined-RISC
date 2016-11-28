@@ -13,12 +13,10 @@ port(clk: in std_logic;
 	dram_addr_mem: out matrix16(7 downto 0);
 	dram_pathway: out std_logic;
 	dram_writeEN:out std_logic;
-	dram_load_mem:out std_logic;
 	dram_mem_loaded:in std_logic;
 	dram_ai_mem:out std_logic_vector(15 downto 0);
 	dram_di_mem:out std_logic_vector(15 downto 0);
 	dram_do_mem:in std_logic_vector(15 downto 0);
-	irom_load_mem:out std_logic;
 	irom_mem_loaded:in std_logic;
 	irom_address:out std_logic_vector(15 downto 0);
 	irom_dataout:in std_logic_vector(15 downto 0)
@@ -67,7 +65,7 @@ signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
 -- Miscellaneous signals
 signal SE9_out: std_logic_vector(15 downto 0);
 signal LW_zero: std_logic_vector(0 downto 0);
-signal mem_loaded_sig, load_mem_sig, load_I_mem_sig, I_mem_loaded_sig: std_logic;
+signal mem_loaded_sig,  I_mem_loaded_sig: std_logic;
 signal HighZ16: std_logic_vector(15 downto 0):="ZZZZZZZZZZZZZZZZ";
 signal isEqualFlag, PC_write_sig, RF_write_sig: std_logic;
 signal regFileData_sig : matrix16(6 downto 0);
@@ -291,12 +289,10 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							dram_addr_mem<=EX_MEM_out_sig.A_multiple;
 							dram_pathway<=EX_MEM_out_sig.DRAM.pathway;
 							dram_writeEN<=EX_MEM_out_sig.DRAM.writeEN;
-							dram_load_mem<=load_mem_sig;
 							mem_loaded_sig<=dram_mem_loaded;
 							dram_ai_mem<=EX_MEM_out_sig.ALU_OUT;
 							dram_di_mem<=EX_MEM_out_sig.D1;
 							MEM_WB_in_sig.mem_out<=dram_do_mem;
-							irom_load_mem<=load_I_mem_sig;
 							I_mem_loaded_sig<=irom_mem_loaded;
 							irom_address<=IF_ID_in_sig.PC;
 							Instruction_pipeline_sig(0)<=irom_dataout;

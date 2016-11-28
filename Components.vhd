@@ -297,16 +297,13 @@ clk: in std_logic;
 	dram_addr_mem: out matrix16(7 downto 0);
 	dram_pathway: out std_logic;
 	dram_writeEN:out std_logic;
-	dram_load_mem:out std_logic;
 	dram_mem_loaded:in std_logic;
 	dram_ai_mem:out std_logic_vector(15 downto 0);
 	dram_di_mem:out std_logic_vector(15 downto 0);
 	dram_do_mem:in std_logic_vector(15 downto 0);
-	irom_load_mem:out std_logic;
 	irom_mem_loaded:in std_logic;
 	irom_address:out std_logic_vector(15 downto 0);
 	irom_dataout:in std_logic_vector(15 downto 0)
-
 	);
 end component;
 
