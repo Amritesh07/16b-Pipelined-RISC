@@ -13,6 +13,19 @@ entity GenericMux is
 end GenericMux;
 
 architecture dataflow of GenericMux is
+  function to_int(x: std_logic_vector) return integer is
+      variable ret_val: integer:=0;
+      alias lx : std_logic_vector (x'length-1 downto 0) is x;
+	variable pow: integer:=1;
+  begin
+	for I in 0 to x'length-1 loop
+		if (lx(I) = '1') then
+      			ret_val := ret_val + pow;
+		end if;
+		pow:=pow*2;
+	end loop;
+      return(ret_val);
+  end to_int;
 begin
-        O<= I(to_integer(unsigned(S)));
+        O<= I(to_int((S)));
 end dataflow;

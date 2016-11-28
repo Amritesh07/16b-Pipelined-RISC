@@ -41,34 +41,34 @@ architecture arch of Datapath is
 			constant OP_JAL: Std_Logic_Vector(3 downto 0) := "1000";
 			constant OP_JLR: Std_Logic_Vector(3 downto 0) := "1001";
 
-			signal null16: std_logic_vector(15 downto 0):="0000000000000000";
-			signal done_sig: std_logic;
-			-- pipeline related signals
-			signal IF_ID_in_sig, IF_ID_out_sig: IF_ID_type;
-			signal ID_RR_in_sig, ID_RR_out_sig: ID_RR_type;
-			signal RR_EX_in_sig, RR_EX_out_sig: RR_EX_type;
-			signal EX_MEM_in_sig, EX_MEM_out_sig : EX_MEM_type;
-			signal MEM_WB_in_sig, MEM_WB_out_sig : MEM_WB_type;
-			-- Hazard Unit signals
-			signal PC_val_sig: std_logic_vector(15 downto 0):="0000000000000000";
-			signal pipeline_enable_sig: std_logic_vector(0 to 4);
-			signal PC_write_en_sig, PC_write_en_sig_temp: std_logic;
-			signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4);
-			signal stallflag_sig: std_logic;
-			-- Multiplexer related signals
-			signal M1_out_sig, M3_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
-			signal M1_sel_sig: std_logic_vector(0 downto 0);
-			-- condition code register related signals
-			signal ALU_C_sig, ALU_Z_sig: std_logic;
-			-- carry and zero register
-			signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
-			-- Miscellaneous signals
-			signal SE9_out: std_logic_vector(15 downto 0);
-			signal LW_zero: std_logic_vector(0 downto 0);
-			signal mem_loaded_sig,  I_mem_loaded_sig: std_logic;
-			signal HighZ16: std_logic_vector(15 downto 0):="ZZZZZZZZZZZZZZZZ";
-			signal isEqualFlag, PC_write_sig, RF_write_sig: std_logic;
-			signal regFileData_sig : matrix16(6 downto 0);
+signal null16: std_logic_vector(15 downto 0):="0000000000000000";
+signal done_sig: std_logic;
+-- pipeline related signals
+signal IF_ID_in_sig, IF_ID_out_sig: IF_ID_type;
+signal ID_RR_in_sig, ID_RR_out_sig: ID_RR_type;
+signal RR_EX_in_sig, RR_EX_out_sig: RR_EX_type;
+signal EX_MEM_in_sig, EX_MEM_out_sig : EX_MEM_type;
+signal MEM_WB_in_sig, MEM_WB_out_sig : MEM_WB_type;
+-- Hazard Unit signals
+signal PC_val_sig: std_logic_vector(15 downto 0):=(others=>'0');
+signal pipeline_enable_sig: std_logic_vector(0 to 4);
+signal PC_write_en_sig,PC_write_en_sig_temp: std_logic;
+signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4):=(others=>(others=>'1'));
+signal stallflag_sig: std_logic;
+-- Multiplexer related signals
+signal M1_out_sig, M3_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
+signal M1_sel_sig: std_logic_vector(0 downto 0);
+-- condition code register related signals
+signal ALU_C_sig, ALU_Z_sig: std_logic;
+-- carry and zero register
+signal zeroRegEn,carryRegEn,zeroRegDataIn: std_logic;
+-- Miscellaneous signals
+signal SE9_out: std_logic_vector(15 downto 0);
+signal LW_zero: std_logic_vector(0 downto 0);
+signal mem_loaded_sig,  I_mem_loaded_sig: std_logic;
+signal HighZ16: std_logic_vector(15 downto 0):="ZZZZZZZZZZZZZZZZ";
+signal isEqualFlag, PC_write_sig, RF_write_sig: std_logic;
+signal regFileData_sig : matrix16(6 downto 0);
 begin
 
 ----------- Pipeline Register
