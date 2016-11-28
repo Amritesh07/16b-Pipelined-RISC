@@ -105,7 +105,7 @@ begin
         	ram(CONV_INTEGER(ai_mem)) <= di_mem;
         end if;
         if (writeEN = '1' and mem_ctr(0) ='1' and pathway='1')then
-          ram(CONV_INTEGER(Addr_mem(0))) <= Din_mem(0);
+            ram(CONV_INTEGER(Addr_mem(0))) <= Din_mem(0);
         end if;
         if (writeEN = '1' and mem_ctr(1) ='1' and pathway='1')then
             ram(CONV_INTEGER(Addr_mem(1))) <= Din_mem(1);
@@ -132,21 +132,25 @@ begin
 	--else
 	--dataout <= ram(CONV_INTEGER(address));
 
-	end if;
+	     if((load_mem = '1') and (wr_flag='1')) then
 
-	if((load_mem = '1') and (wr_flag='1')) then
+  		     ram(address_in_r) <= in_array(address_in);
+    		     if(address_in = 26) then
+               mem_loaded <='1';
+               wr_flag<='0';
+             else
+              mem_loaded<='0';
+            end if;
+    		      if(address_in_r=19) then
+                address_in_r:=256;
+    		      else
+                address_in_r:= address_in_r+1;
+    		      end if;
+	          address_in:=address_in+1;
 
-		ram(address_in_r) <= in_array(address_in);
-		if(address_in = 26) then mem_loaded <='1'; wr_flag<='0'; else mem_loaded<='0'; end if;
-		if(address_in_r=19) then address_in_r:=256;
-		else address_in_r:=address_in_r+1;
-		end if;
-		address_in:=address_in+1;
+        end if;
 
-
-	end if;
-
-
+end if;
   end process RamProc;
 
 

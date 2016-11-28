@@ -4,8 +4,24 @@ use ieee.numeric_std.all;
 library work;
 use work.components.all;
 
+
 entity Datapath is
-port(clk: in std_logic
+port(clk: in std_logic;
+	mem_ctr_out: out std_logic_vector(7 downto 0);
+	din_mem_out: out matrix16(7 downto 0);
+	dout_mem_in: in matrix16(7 downto 0);
+	dram_addr_mem: out matrix16(7 downto 0);
+	dram_pathway: out std_logic;
+	dram_writeEN:out std_logic;
+	dram_load_mem:out std_logic;
+	dram_mem_loaded:in std_logic;
+	dram_ai_mem:out std_logic_vector(15 downto 0);
+	dram_di_mem:out std_logic_vector(15 downto 0);
+	dram_do_mem:in std_logic_vector(15 downto 0);
+	irom_load_mem:out std_logic;
+	irom_mem_loaded:in std_logic;
+	irom_address:out std_logic_vector(15 downto 0);
+	irom_dataout:in std_logic_vector(15 downto 0)
 
 	);
 end Datapath;
@@ -168,13 +184,7 @@ FLogic: FwdCntrl port map(padder(0) => RR_EX_out_sig.Padder,	padder(1) => EX_MEM
 													);
 ALU0 : ALU port map(I1 => M6_out_sig, I2 => M7_out_sig, Sel => RR_EX_out_sig.ALUsel, C => ALU_C_sig, Z =>ALU_Z_sig, O => EX_MEM_in_sig.ALU_OUT);
 
-DataMem: DRAM port map(clock => clk, mem_ctr => EX_MEM_out_sig.DRAM.mem_ctr, Din_mem => EX_MEM_out_sig.D_multiple, Dout_mem => MEM_WB_in_sig.D_multiple,
-												Addr_mem => EX_MEM_out_sig.A_multiple, pathway => EX_MEM_out_sig.DRAM.pathway,
-												writeEN => EX_MEM_out_sig.DRAM.writeEN, load_mem => load_mem_sig, mem_loaded => mem_loaded_sig,
-												ai_mem => EX_MEM_out_sig.ALU_OUT, di_mem => EX_MEM_out_sig.D1, do_mem => MEM_WB_in_sig.mem_out);
 
-InstMem: iROM port map(clock => clk, load_mem => load_I_mem_sig, mem_loaded => I_mem_loaded_sig,
-										address => IF_ID_in_sig.PC, dataout => Instruction_pipeline_sig(0));
 
 AddrBlock : AddressBlock port map(Ain => RR_EX_out_sig.D1, Sel => RR_EX_out_sig.DRAM.mem_ctr, Aout => EX_MEM_in_sig.A_multiple);
 
@@ -274,5 +284,21 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							pipeline_enable => pipeline_enable_sig,  --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 							PC_write_en => PC_write_en_sig,
 							PCval => PC_val_sig);
+
+							mem_ctr_out<=EX_MEM_out_sig.DRAM.mem_ctr;
+							din_mem_out<=EX_MEM_out_sig.D_multiple;
+							MEM_WB_in_sig.D_multiple<=dout_mem_in;
+							dram_addr_mem<=EX_MEM_out_sig.A_multiple;
+							dram_pathway<=EX_MEM_out_sig.DRAM.pathway;
+							dram_writeEN<=EX_MEM_out_sig.DRAM.writeEN;
+							dram_load_mem<=load_mem_sig;
+							mem_loaded_sig<=dram_mem_loaded;
+							dram_ai_mem<=EX_MEM_out_sig.ALU_OUT;
+							dram_di_mem<=EX_MEM_out_sig.D1;
+							MEM_WB_in_sig.mem_out<=dram_do_mem;
+							irom_load_mem<=load_I_mem_sig;
+							I_mem_loaded_sig<=irom_mem_loaded;
+							irom_address<=IF_ID_in_sig.PC;
+							Instruction_pipeline_sig(0)<=irom_dataout;
 
 end arch;
