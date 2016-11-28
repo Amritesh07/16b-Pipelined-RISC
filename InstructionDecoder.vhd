@@ -12,11 +12,8 @@ port(
 	 M1_sel,M6_sel,M7_sel: out std_logic_vector(0 downto 0);
 	 M3_sel: out std_logic_vector(1 downto 0);
 	 M4_sel,M5_sel: out std_logic_vector(2 downto 0);
-	 ALUsel: out std_logic_vector(0 downto 0);
-	 PCwrite: out std_logic;
- 	carryWrite: out std_logic;
- 	zeroWrite:out std_logic
-	 	);
+	 ALUsel: out std_logic_vector(0 downto 0)
+	 );
 end entity;
 
 architecture arch of instructionDecoder is
@@ -40,7 +37,6 @@ architecture arch of instructionDecoder is
 	constant OP_BEQ: Std_Logic_Vector(3 downto 0) := "1100";
 	constant OP_JAL: Std_Logic_Vector(3 downto 0) := "1000";
 	constant OP_JLR: Std_Logic_Vector(3 downto 0) := "1001";
-  signal PCwrite_sig:std_logic;
 	signal RF_sig: RegFileCtrl;
 	signal DRAM_sig: dramCtrl;
 	signal null16:std_logic_vector(15 downto 0):="0000000000000000";
@@ -49,7 +45,7 @@ architecture arch of instructionDecoder is
 	signal M4_sel_sig,M5_sel_sig: std_logic_vector(2 downto 0);
 	signal A1_sig,A2_sig: std_logic_vector(2 downto 0);
 	signal ALUsel_sig: std_logic_vector(0 downto 0);
-	signal carryWrite_sig,zeroWrite_sig: std_logic;
+
 
 begin
 	opcode<=I16(15 downto 12);
@@ -71,11 +67,10 @@ begin
 		variable RF_var: RegFileCtrl;
 		variable DRAM_var: dramCtrl;
 		variable ALUsel_var: std_logic_vector(0 downto 0);
-		variable carryWrite_var,zeroWrite_var: std_logic;
 		variable M1_sel_var,M6_sel_var,M7_sel_var: std_logic_vector(0 downto 0);
 		variable M3_sel_var: std_logic_vector(1 downto 0);
 		variable M4_sel_var,M5_sel_var: std_logic_vector(2 downto 0);
-		variable PCwrite_var:std_logic;
+
 	begin
 
 			--ADD=====================================================
@@ -93,15 +88,15 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='1';
-				zeroWrite_var:='1';
+				RF_var.carryEN:='1';
+				RF_var.zeroEN:='1';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -131,15 +126,15 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='1';
-				zeroWrite_var:='1';
+				RF_var.carryEN:='1';
+				RF_var.zeroEN:='1';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -168,15 +163,15 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='1';
-				zeroWrite_var:='1';
+				RF_var.carryEN:='1';
+				RF_var.zeroEN:='1';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -206,15 +201,15 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='1';
-				zeroWrite_var:='1';
+				RF_var.carryEN:='1';
+				RF_var.zeroEN:='1';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -244,15 +239,15 @@ begin
 
 
 				AluSel_var:="1";
-				carryWrite_var:='0';
-				zeroWrite_var:='1';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='1';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -281,15 +276,15 @@ begin
 
 
 				AluSel_var:="1";
-				carryWrite_var:='0';
-				zeroWrite_var:='1';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='1';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -319,15 +314,15 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='0';
-				zeroWrite_var:='1';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='1';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -357,15 +352,15 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='0';
-				zeroWrite_var:='1';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='1';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -390,15 +385,15 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='0';
-				zeroWrite_var:='0';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='0';
 
 				DRAM_var.mem_ctr:="00000000";
 				DRAM_var.pathway:='0';
 				DRAM_var.writeEN:='1';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -427,8 +422,8 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='0';
-				zeroWrite_var:='0';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='0';
 
 				DRAM_var.mem_ctr:=Rsel;
 				-- Address  Block gets Rsel from Datapath Direct ( ^ can be reduced)
@@ -436,7 +431,7 @@ begin
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -461,8 +456,8 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='0';
-				zeroWrite_var:='0';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='0';
 
 				DRAM_var.mem_ctr:=Rsel;
 				-- Address  Block gets Rsel from Datapath Direct ( ^ can be reduced)
@@ -470,7 +465,7 @@ begin
 				DRAM_var.writeEN:='1';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="X";--1
 
@@ -493,8 +488,8 @@ begin
 				RF_var.r7_write:='1';
 
 				AluSel_var:="0";
-				carryWrite_var:='0';
-				zeroWrite_var:='0';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='0';
 
 				DRAM_var.mem_ctr:="00000000";
 				-- Address  Block gets Rsel from Datapath Direct ( ^ can be reduced)
@@ -502,7 +497,7 @@ begin
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="0";--1
 
@@ -532,8 +527,8 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='0';
-				zeroWrite_var:='0';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='0';
 
 				DRAM_var.mem_ctr:="00000000";
 				-- Address  Block gets Rsel from Datapath Direct ( ^ can be reduced)
@@ -541,7 +536,7 @@ begin
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 
 
@@ -573,8 +568,8 @@ begin
 
 
 				AluSel_var:="0";
-				carryWrite_var:='0';
-				zeroWrite_var:='0';
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='0';
 
 				DRAM_var.mem_ctr:="00000000";
 				-- Address  Block gets Rsel from Datapath Direct ( ^ can be reduced)
@@ -582,7 +577,7 @@ begin
 				DRAM_var.writeEN:='0';
 				DRAM_var.load_mem:='0';
 
-				PCwrite_var := '1';
+				-- := '1';
 
 				M1_sel_var:="1";--1
 				M3_sel_var:="11";--2
@@ -596,7 +591,7 @@ begin
 				--:="1"; --1
 			end if;
 
-				PCwrite_sig<=PCwrite_var;
+
 				RF_sig<=RF_var;
 				DRAM_sig<=DRAM_var;
 				M1_sel_sig<=M1_sel_var;
@@ -606,8 +601,7 @@ begin
 				M4_sel_sig<=M4_sel_var;
 				M5_sel_sig<=M5_sel_var;
 				ALUsel_sig<=ALUsel_var;
-				carryWrite_sig<=carryWrite_var;
-				zeroWrite_sig<=zeroWrite_var;
+		
 
 	end process;
 	RF<=RF_sig;
@@ -619,7 +613,5 @@ begin
 	M4_sel<=M4_sel_sig;
 	M5_sel<=M5_sel_sig;
 	ALUsel<=ALUsel_sig;
-	PCwrite<=PCwrite_sig;
-	carryWrite<=carryWrite_sig;
-	zeroWrite<=zeroWrite_sig;
+
 end arch;
