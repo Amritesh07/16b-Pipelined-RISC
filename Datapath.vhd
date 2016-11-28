@@ -42,7 +42,7 @@ signal PC_write_en_sig: std_logic;
 signal Instruction_pipeline_sig, Instr_out_sig: matrix16(0 to 4);
 signal stallflag_sig: std_logic;
 -- Multiplexer related signals
-signal M1_out_sig, M3_out_sig, M4_out_sig, M5_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
+signal M1_out_sig, M3_out_sig, M6_out_sig, M7_out_sig: std_logic_vector(15 downto 0);
 signal M1_sel_sig: std_logic_vector(0 downto 0);
 -- condition code register related signals
 signal ALU_C_sig, ALU_Z_sig: std_logic;
@@ -178,7 +178,7 @@ InstMem: iROM port map(clock => clk, load_mem => load_I_mem_sig, mem_loaded => I
 
 AddrBlock : AddressBlock port map(Ain => RR_EX_out_sig.D1, Sel => RR_EX_out_sig.DRAM.mem_ctr, Aout => EX_MEM_in_sig.A_multiple);
 
-isEqu: isEqual port map(I1 => M4_out_sig, I2 => M5_out_sig, O =>isEqualFlag);
+isEqu: isEqual port map(I1 => RR_EX_in_sig.D1, I2 => RR_EX_in_sig.D2, O =>isEqualFlag);
 isNull: isEqual port map(I1=>MEM_WB_in_sig.mem_out, I2=>null16, O => LW_zero(0));
 Add1 : Add_1 port map(I => IF_ID_in_sig.PC, O => IF_ID_in_sig.PC_1);
 
@@ -245,7 +245,7 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							lw_out => MEM_WB_in_sig.mem_out,
 							lm_out => MEM_WB_in_sig.D_multiple(7),
 							aluop => EX_MEM_in_sig.ALU_OUT,
-							JLRreg => M5_out_sig,
+							JLRreg => RR_EX_in_sig.D2,
 							Pc_Im6 => ID_RR_out_sig.PC_Imm6,
 							Pc_Im9 => ID_RR_in_sig.PC_Imm6,
 							padder => ID_RR_in_sig.Padder,
@@ -274,5 +274,13 @@ Hazard_Mitigation_Unit: HazardUnit port map (
 							pipeline_enable => pipeline_enable_sig,  --  0- for IF, 1-ID, 2-RR, 3-EX, 4-MEM
 							PC_write_en => PC_write_en_sig,
 							PCval => PC_val_sig);
+
+Instr_out_sig(0) <= IF_ID_in_sig.I16;
+Instr_out_sig(1) <= RR_EX_out_sig.I16;
+Instr_out_sig(2) <= EX_MEM_out_sig.I16;
+Instr_out_sig(3) <= MEM_WB_out_sig.I16;
+Instr_out_sig(4) <= EX_MEM_out_sig.I16;
+
+
 
 end arch;
