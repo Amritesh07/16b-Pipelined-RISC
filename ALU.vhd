@@ -11,12 +11,17 @@ port(
 end ALU;
 
 architecture arch of ALU is
-	signal add_sig,nand_sig: std_logic_vector(16 downto 0);
-	signal output_sig: std_logic_vector(15 downto 0);
+	signal operand1_sig,operand2_sig: std_logic_vector(16 downto 0);
+	signal add_sig: std_logic_vector(16 downto 0);
+	signal output_sig, nand_sig: std_logic_vector(15 downto 0);
 begin
-	add_sig<=std_logic_vector(unsigned(I1)+unsigned(I2));
+	operand1_sig(15 downto 0) <= I1;
+	operand1_sig(16) <= '0';
+	operand2_sig(15 downto 0) <= I2;
+	operand1_sig(16) <= '0';
+	add_sig<=std_logic_vector(unsigned(operand1_sig)+unsigned(operand2_sig));
 	nand_sig<=I1 nand I2;
-	output_sig <= nand_sig(15  downto 0) when sel ='1' else add_sig(15 downto 0);
+	output_sig <= nand_sig(15 downto 0) when sel ='1' else add_sig(15 downto 0);
 	O<=output_sig;
 	C<= not(sel) and add_sig(16);		-- 16th bit of addition is carry bit
 	Z<= '1' when output_sig="0000000000000000" else '0';
