@@ -130,7 +130,7 @@ RF_write_sig <= '0' when
 														MEM_WB_out_sig.I16(15 downto 12) ="1111"
 														or
 														(
-															( MEM_WB_out_sig.I16(15 downto 12)="0000" or MEM_WB_out_sig.I16(15 downto 12)="0001"	)
+															( MEM_WB_out_sig.I16(15 downto 12)=OP_AD or MEM_WB_out_sig.I16(15 downto 12)=OP_ND)
 															and
 															(
 																		( MEM_WB_out_sig.I16(0)='1' and MEM_WB_out_sig.z_old='0')
