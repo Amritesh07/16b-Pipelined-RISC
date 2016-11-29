@@ -255,7 +255,7 @@ CarryReg: DataRegister generic map(data_width => 1) port map(enable =>carryRegEn
 																														);
 ZeroReg: DataRegister generic map(data_width => 1) port map(enable =>zeroRegEn,
 																													Din(0) => zeroRegDataIn,
-																													Dout(0) =>EX_MEM_in_sig.Z_old,
+																													Dout(0) => MEM_WB_in_sig.Z_old,
 																													clk =>clk
 																													);
 pipeline_enable_sig<= pipeline_enable_sig_temp when irom_mem_loaded='1' else "00000"; -- Added for Blocking propagation of Instrucgtion in initial phase until memory is written
