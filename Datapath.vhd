@@ -171,7 +171,7 @@ RF : Regfile port map(
 
 FLogic: FwdCntrl port map(padder(0) => RR_EX_out_sig.Padder,      padder(1) => EX_MEM_out_sig.Padder,	      padder(2) => MEM_WB_out_sig.Padder,
 													PC_1(0) => RR_EX_out_sig.PC_1,          PC_1(1) => EX_MEM_out_sig.PC_1,           PC_1(2) => MEM_WB_out_sig.PC_1,
-													aluop(0) => EX_MEM_in_sig.ALU_OUT,      aluop(1) => EX_MEM_out_sig.PC_1,          aluop(2) => MEM_WB_out_sig.PC_1,
+													aluop(0) => EX_MEM_in_sig.ALU_OUT,      aluop(1) => EX_MEM_out_sig.ALU_OUT,          aluop(2) => MEM_WB_out_sig.ALU_OUT,
 													regDest(0) => RR_EX_out_sig.RF.a3rf,    regDest(1) => EX_MEM_out_sig.RF.a3rf,     regDest(2) => MEM_WB_out_sig.RF.a3rf,
 													Iword(0)  =>  RR_EX_out_sig.I16,        Iword(1) => EX_MEM_out_sig.I16,           Iword(2) => MEM_WB_out_sig.I16,
 													Lm_mem	=> MEM_WB_in_sig.D_multiple,    -- mem stage
@@ -253,7 +253,7 @@ CarryReg: DataRegister generic map(data_width => 1) port map(enable =>carryRegEn
 																														);
 ZeroReg: DataRegister generic map(data_width => 1) port map(enable =>zeroRegEn,
 																													Din(0) => zeroRegDataIn,
-																													Dout(0) =>EX_MEM_in_sig.C_old,
+																													Dout(0) =>EX_MEM_in_sig.Z_old,
 																													clk =>clk
 																													);
 pipeline_enable_sig<= pipeline_enable_sig_temp when irom_mem_loaded='1' else "00000"; -- Added for Blocking propagation of Instrucgtion in initial phase until memory is written
