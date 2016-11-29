@@ -55,7 +55,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                   var_stall:='1';
                 end if;
 
-            elsif (Iword(0)(15 downto 12) /= "1111") then
+            elsif (Iword(0)(15 downto 12) /= "1111" and regDest(0)="000") then
 
                     if(regDest(0)="000") then
                           if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -97,7 +97,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
                       Reg0 := regFiledata(0);
                     end if;
 
-            elsif (Iword(1)(15 downto 12) /= "1111") then
+            elsif (Iword(1)(15 downto 12) /= "1111" and regDest(1)="000") then
 
                     if(regDest(1)="000") then
                       if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -188,7 +188,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
           var_stall:='1';
         end if;
 
-    elsif (Iword(0)(15 downto 12) /= "1111") then
+    elsif (Iword(0)(15 downto 12) /= "1111" and regDest(0)="001") then
 
             if(regDest(0)="001") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- ADD and NAND type instruction
@@ -230,7 +230,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
               Reg1 := regFiledata(1);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "1111") then
+    elsif (Iword(1)(15 downto 12) /= "1111" and regDest(1)="001") then
 
             if(regDest(1)="001") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -320,7 +320,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
         if (Lm_sel(0)(2)='1' or regDest(0)="010") then
           var_stall:='1';
         end if;
-    elsif (Iword(0)(15 downto 12) /= "1111") then
+    elsif (Iword(0)(15 downto 12) /= "1111" and regDest(0)="010") then
 
             if(regDest(0)="010") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -362,7 +362,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
               Reg2 := regFiledata(2);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "1111") then
+    elsif (Iword(1)(15 downto 12) /= "1111" and regDest(1)="010") then
 
             if(regDest(1)="010") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -453,7 +453,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
           var_stall:='1';
         end if;
 
-    elsif (Iword(0)(15 downto 12) /= "1111") then
+    elsif (Iword(0)(15 downto 12) /= "1111" and regDest(0)="011") then
 
             if(regDest(0)="011") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -495,7 +495,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
               Reg3 := regFiledata(3);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "1111") then
+    elsif (Iword(1)(15 downto 12) /= "1111" and regDest(1)="011") then
 
             if(regDest(1)="011") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -587,7 +587,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
         end if;
 
 
-    elsif (Iword(0)(15 downto 12) /= "1111") then
+    elsif (Iword(0)(15 downto 12) /= "1111" and regDest(0)="100") then
 
             if(regDest(0)="100") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -629,7 +629,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
               Reg4 := regFiledata(4);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "1111") then
+    elsif (Iword(1)(15 downto 12) /= "1111" and regDest(1)="100") then
 
             if(regDest(1)="100") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -721,7 +721,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
         end if;
 
 
-    elsif (Iword(0)(15 downto 12) /= "1111") then
+    elsif (Iword(0)(15 downto 12) /= "1111" and regDest(0)="101") then
 
             if(regDest(0)="101") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -763,7 +763,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
               Reg5 := regFiledata(5);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "1111") then
+    elsif (Iword(1)(15 downto 12) /= "1111" and regDest(1)="101") then
 
             if(regDest(1)="101") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -855,7 +855,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
         end if;
 
 
-    elsif (Iword(0)(15 downto 12) /= "1111") then
+    elsif (Iword(0)(15 downto 12) /= "1111" and regDest(0)="110") then
 
             if(regDest(0)="110") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -897,7 +897,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
               Reg6 := regFiledata(6);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "1111") then
+    elsif (Iword(1)(15 downto 12) /= "1111" and regDest(1)="110") then
 
             if(regDest(1)="110") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
@@ -989,7 +989,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
         end if;
 
 
-    elsif (Iword(0)(15 downto 12) /= "1111") then
+    elsif (Iword(0)(15 downto 12) /= "1111" and regDest(0)="111") then
 
             if(regDest(0)="111") then
                   if ( Iword(0)(15)='0' and Iword(0)(14)='0' and Iword(0)(12)='0') then ----- R type instruction
@@ -1031,7 +1031,7 @@ process (Iword,padder,PC_1,aluop,regDest,Lm_mem,Lm_sel,Lm_wb,mem_out,regFiledata
               Reg7 := regFiledata(7);
             end if;
 
-    elsif (Iword(1)(15 downto 12) /= "1111") then
+    elsif (Iword(1)(15 downto 12) /= "1111" and regDest(1)="111") then
 
             if(regDest(1)="111") then
               if ( Iword(1)(15)='0' and Iword(1)(14)='0' and Iword(1)(12)='0') then ----- R type instruction
