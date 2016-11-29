@@ -237,11 +237,11 @@ carryRegEn <= RR_EX_out_sig.RF.CarryEn
 zeroRegEn <= EX_MEM_out_sig.RF.ZeroEn
 					when (
 								(
-								 not(RR_EX_out_sig.I16(15 downto 12 )="1111")
+								 not(EX_MEM_out_sig.I16(15 downto 12 )="1111")
 								)
 					 			or
 								(
-									(MEM_WB_in_sig.Z_old='1' and RR_EX_out_sig.I16(15 downto 12)=op_AD) and (RR_EX_out_sig.I16(1 downto 0)= CZ_zero)
+									(MEM_WB_in_sig.Z_old='1' and EX_MEM_out_sig.I16(15 downto 12)=op_AD) and (EX_MEM_out_sig.I16(1 downto 0)= CZ_zero)
 								)
 							 )
 						else '0';
@@ -255,7 +255,7 @@ CarryReg: DataRegister generic map(data_width => 1) port map(enable =>carryRegEn
 																														);
 ZeroReg: DataRegister generic map(data_width => 1) port map(enable =>zeroRegEn,
 																													Din(0) => zeroRegDataIn,
-																													Dout(0) =>EX_MEM_in_sig.Z_old,
+																													Dout(0) =>MEM_WB_in_sig.Z_old,
 																													clk =>clk
 																													);
 pipeline_enable_sig<= pipeline_enable_sig_temp when irom_mem_loaded='1' else "00000"; -- Added for Blocking propagation of Instrucgtion in initial phase until memory is written
