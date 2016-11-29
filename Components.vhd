@@ -220,7 +220,6 @@ type ID_RR_type	is Record
 	-- data to be forwarded
 	I16, PC, PC_1, SE6, Padder, PC_Imm6: std_logic_vector(15 downto 0);
 	-- contols to be forwarded
-	A1, A2: std_logic_vector(2 downto 0);
 	RF:  RegFileCtrl; -- A3 included here -- to be taken untill WB stage
 	DRAM: dramCtrl;
 	ALUsel: std_logic;

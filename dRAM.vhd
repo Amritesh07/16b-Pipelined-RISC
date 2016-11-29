@@ -23,7 +23,6 @@ end entity dRAM;
 architecture dRTL of dRAM is
 
    type ram_type is array (0 to 511) of std_logic_vector(15 downto 0);
-type hram_type is array (0 to 26) of std_logic_vector(15 downto 0);
 
    signal ram : ram_type;
    signal read_address : std_logic_vector(0 to 15);
@@ -44,34 +43,42 @@ function CONV_INTEGER(x: std_logic_vector) return integer is
   end CONV_INTEGER;
   signal ram_data: std_logic_vector(15 downto 0);
   signal wr_flag:std_logic:='1';
+  type hram_type is array (0 to 32) of std_logic_vector(15 downto 0);
+
  signal in_array: hram_type:= (
-"0011001000000010", --0
-"0011010000000010", --1
-"0011101000000010", --2
-"0011011000000010", --3
-"0100000010000001", --4
-"0000000000100000", --5
-"0100100101000010", --6
-"0100000010000011", --7
-"0000100100110001", --8
-"0000001000011001", --9
-"0000001000010010", --10
-"0101000011000010", --11
-"0100010011000010", --12
-"0101011010000001", --13
-"0110000000111111", --14
-"0001111000011001", --15
-"0001111111011001", --16
-"0100100110000000", --17
-"0010011110100001", --18
-"0010101110001000", --19
-"0000000000000000",--256,20
-"0000000000000010",--257,21
-"0000000000000110",--258,22
-"0000000100000000",--259,23
-"0000000000000101",--260,24
-"0000000000000110",--261,25
-"0000000100000000"--262 ,26
+ "1000000000011101",
+ "0100100110000101",
+ "0001000110111101",
+ "0100110110000101",
+ "0110000000000011",
+ "0001010000000000",
+ "0010011001000000",
+ "0010011011011000",
+ "0001011011000000",
+ "0000100100010001",
+ "0000000000000000",
+ "0010110110110010",
+ "1100110101111010",
+ "0101100101010110",
+ "0000000000000001",
+ "1111111111111111",
+ "0000000000000010",
+ "0000000000101101",
+ "0001011011000001",
+ "0001110110010111",
+ "0101000110000100",
+ "0100000110000000",
+ "0100001110000001",
+ "1100101001001100",
+ "0000010010000000",
+ "0000100100011010",
+ "0001001001111111",
+ "0001111111111100",
+ "0001000110000010",
+ "0111000000010100",
+ "0001011011111111",
+ "0101011110000101",
+ "0100111110000100"
 );
 
 begin
@@ -134,21 +141,31 @@ begin
 
 	     if((load_mem = '1') and (wr_flag='1')) then
 
-  		     ram(address_in_r) <= in_array(address_in);
-    		     if(address_in = 26) then
-               mem_loaded <='1';
-               wr_flag<='0';
-             else
-              mem_loaded<='0';
-            end if;
-    		      if(address_in_r=19) then
-                address_in_r:=256;
-    		      else
-                address_in_r:= address_in_r+1;
-    		      end if;
-	          address_in:=address_in+1;
-
-        end if;
+  		     --ram(address_in_r) <= in_array(address_in);
+    		  --   if(address_in = 26) then
+            --   mem_loaded <='1';
+            --   wr_flag<='0';
+            -- else
+            --  mem_loaded<='0';
+            --end if;
+    		    --  if(address_in_r=19) then
+            --    address_in_r:=256;
+    		    --  else
+            --    address_in_r:= address_in_r+1;
+    		    --  end if;
+	          --address_in:=address_in+1;
+--
+      --  end if;
+      ram(address_in_r) <= in_array(address_in);
+    if(address_in = 32) then mem_loaded <='1'; 			wr_flag<='0'; else mem_loaded<='0'; end if;
+    if(address_in_r=13) then address_in_r:=20;
+    elsif(address_in_r=21) then address_in_r:=23;
+    elsif(address_in_r=24) then address_in_r:=29;
+    elsif(address_in_r=38) then address_in_r:=46;
+    else address_in_r:=address_in_r+1;
+    end if;
+    address_in:=address_in+1;
+  end if;
 
 end if;
   end process RamProc;

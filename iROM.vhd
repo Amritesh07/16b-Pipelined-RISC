@@ -36,11 +36,54 @@ function CONV_INTEGER(x: std_logic_vector) return integer is
   end CONV_INTEGER;
   signal ram_data: std_logic_vector(15 downto 0);
   signal wr_flag:std_logic:='1';
-  type hram_type is array (0 to 2) of std_logic_vector(15 downto 0);
+  type hram_type is array (0 to 32) of std_logic_vector(15 downto 0);
  signal in_array: hram_type:= (
- "0011001000000001",
- "0001010011000001",
- "0101010100000000"
+ --"0001110111000100",  -- ADI R7<-( R6) 4
+ --"0011001000000001",  --LHI R1,00000001
+ --"0001011010000001",  --ADI R3,R2,00001
+ --"0101010100000010",  -- SW R2,R4,00010
+ --"0011101000000001",  -- LHI R5,0000001
+ --"0011011000000001"  --LHI R3,00000001
+ --"0011000111111111", -- LHI R0, 111111111 -> FF80h
+ --"0000000000001000", -- ADD R1<=R0+R0
+ --"1111000000000000",
+ --"1111000000000000",
+ --"0000001010010010",  -- ADC R2=R1+rR
+ --"0000001001011010"   -- ADC R3<=R1+R1
+ "1000000000011101",
+ "0100100110000101",
+ "0001110000111101",
+ "0100110110000101",
+ "0110000000000011",
+ "0001000010000000",
+ "0010000001011000",
+ "0010011011011000",
+ "0001011011000000",
+ "0000100010100001",
+ "0000000000000000",
+ "0010110110110010",
+ "1100110101111010",
+ "0101100101010110",
+ "0000000000000011",
+ "0000000000000000",
+ "0000000000000010",
+ "0000000000000011",
+ "0001011011000001",
+ "0001110110010111",
+ "0101000110000100",
+ "0100000110000000",
+ "0100001110000001",
+ "1100101001001100",
+ "0000010000010000",
+ "0000100011100010",
+ "0001001001111111",
+ "0001111111111100",
+ "0001110000000010",
+ "0111000000010100",
+ "0001011011111111",
+ "0101011110000101",
+ "0100111110000100"
+
 );
 
 begin
@@ -51,15 +94,15 @@ begin
   variable address_in_r:integer:=0;
   begin
     if (rising_edge(clock) and ((load_mem = '1') and (wr_flag='1'))) then
-        ram(address_in_r) <= in_array(address_in);
-		    if(address_in = 2) then
-          mem_loaded <='1';
-          wr_flag<='0';
-        else mem_loaded<='0';
-        end if;
-
-      address_in_r:=address_in_r+1;
-		  address_in:=address_in+1;
+      ram(address_in_r) <= in_array(address_in);
+    if(address_in = 32) then mem_loaded <='1'; 			wr_flag<='0'; else mem_loaded<='0'; end if;
+    if(address_in_r=13) then address_in_r:=20;
+    elsif(address_in_r=21) then address_in_r:=23;
+    elsif(address_in_r=24) then address_in_r:=29;
+    elsif(address_in_r=38) then address_in_r:=46;
+    else address_in_r:=address_in_r+1;
+    end if;
+    address_in:=address_in+1;
 
     end if;
 

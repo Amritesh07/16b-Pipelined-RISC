@@ -79,9 +79,11 @@ EX_MEM : EX_MEM_reg port map(Din => EX_MEM_in_sig, Dout => EX_MEM_out_sig, clk =
 MEM_WB : MEM_WB_reg port map(Din => MEM_WB_in_sig, Dout => MEM_WB_out_sig, clk => clk, enable => pipeline_enable_sig(4));
 
 IF_ID_in_sig.I16 <= Instr_out_sig(0);
+
 --IF_ID_in_sig.PC_1
 Instruction_pipeline_sig(1) <= IF_ID_out_sig.I16;
 ID_RR_in_sig.I16 <= Instr_out_sig(1);
+ID_RR_in_sig.PC <= IF_ID_out_sig.PC;
 ID_RR_in_sig.PC_1<=IF_ID_out_sig.PC_1;
 Instruction_pipeline_sig(2) <= ID_RR_out_sig.I16;
 RR_EX_in_sig.SE6 <= ID_RR_out_sig.SE6;
@@ -198,7 +200,7 @@ isNull: isEqual port map(I1=>MEM_WB_in_sig.mem_out, I2=>null16, O => LW_zero(0))
 Add1 : Add_1 port map(I => IF_ID_in_sig.PC, O => IF_ID_in_sig.PC_1);
 
 ------------------------------ we need to re look at the mux select encodings ---------------------
-M1: GenericMux generic map(seln => 1) port map(I(0) => SE9_out, I(1) => ID_RR_in_sig.SE6, S => M1_sel_sig, O => M1_out_sig);
+M1: GenericMux generic map(seln => 1) port map(I(1) => SE9_out, I(0) => ID_RR_in_sig.SE6, S => M1_sel_sig, O => M1_out_sig);
 M3: GenericMux generic map(seln => 2) port map(I(0) => MEM_WB_out_sig.Padder, I(1) => MEM_WB_out_sig.ALU_OUT, I(2) => MEM_WB_out_sig.mem_out, I(3) => MEM_WB_out_sig.PC_1, S => MEM_WB_out_sig.M3_sel, O => M3_out_sig);
 M4: GenericMux generic map(seln => 3) port map(I => RR_EX_in_sig.D_multiple, S => ID_RR_out_sig.M4_sel, O => RR_EX_in_sig.D1);
 M5: GenericMux generic map(seln => 3) port map(I => RR_EX_in_sig.D_multiple, S => ID_RR_out_sig.M5_sel, O => RR_EX_in_sig.D2);

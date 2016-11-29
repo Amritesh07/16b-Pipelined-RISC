@@ -22,8 +22,8 @@ clk_50: in std_logic
 end component;
 begin
 
- clk <= not clk after 50 ns; -- assume 50ns clock.
- clk_50 <= not clk_50 after 20 ns; --Logic Analyzer Clock
+ clk <= not clk after 5 ns; -- assume 50ns clock.
+ clk_50 <= not clk_50 after 2 ns; --Logic Analyzer Clock
   process
   begin
   wait until clk = '0';
