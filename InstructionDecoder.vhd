@@ -281,6 +281,44 @@ begin
 				--:="000";--3
 				--:="0"; --1
 			end if;
+			--NDU
+			if(opcode=op_ND and CZ=CZ_none) then
+				RF_var.a3rf:=RC;
+				RF_var.path_decider:='0';		--
+				RF_var.rf_write:='1';				--***
+				RF_var.logic_in:="00000000";
+				if(RF_var.a3rf="111") then
+					RF_var.r7_write:='0';
+
+				else
+					RF_var.r7_write:='1';
+				end if;
+
+
+				AluSel_var:="1";
+				RF_var.carryEN:='0';
+				RF_var.zeroEN:='1';
+
+				DRAM_var.mem_ctr:="00000000";
+				DRAM_var.pathway:='0';
+				DRAM_var.writeEN:='0';
+				DRAM_var.load_mem:='0';
+
+				-- := '1';
+
+				M1_sel_var:="X";--1
+
+				M3_sel_var:="01";--2
+				M4_sel_var:=A1_sig;--3
+				M5_sel_var:=A2_sig;--3
+				M6_sel_var:="0";--1
+				M7_sel_var:="0";--1
+				--**
+				--"001";--3			 PC<(PC)+1
+				--:="000";--3
+				--:="0"; --1
+			end if;
+
 			--NDZ
 			if(opcode=op_ND and CZ=CZ_zero) then
 				RF_var.a3rf:=RC;

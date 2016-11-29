@@ -241,7 +241,7 @@ zeroRegEn <= EX_MEM_out_sig.RF.ZeroEn
 								)
 					 			or
 								(
-									(MEM_WB_in_sig.Z_old='1' and EX_MEM_out_sig.I16(15 downto 12)=op_AD) and (EX_MEM_out_sig.I16(1 downto 0)= CZ_zero)
+									(MEM_WB_in_sig.Z_old='1' and (EX_MEM_out_sig.I16(15 downto 12)=op_AD or EX_MEM_out_sig.I16(15 downto 12)=op_ND)  ) and (EX_MEM_out_sig.I16(1 downto 0)= CZ_zero)
 								)
 							 )
 						else '0';
