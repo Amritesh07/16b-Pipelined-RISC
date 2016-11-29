@@ -3,4 +3,4 @@
 ## The Final Datapath 
 <center>
 ![Datapath](Fin_Datapath.jpg)
-<\center>
+</center>
