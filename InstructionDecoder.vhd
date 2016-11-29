@@ -91,8 +91,8 @@ begin
 			M7_sel_var := "0";
 			M3_sel_var := "00";
 			M4_sel_var := "000";
-			M5_sel_var := "000"; 
-			
+			M5_sel_var := "000";
+
 			--ADD=====================================================
 			if(opcode=OP_AD and CZ=CZ_none) then		-- ADD instruction
 				RF_var.a3rf:=RC;
@@ -384,10 +384,10 @@ begin
 
 				M1_sel_var:="X";--1
 
-				M3_sel_var:="00";--2
+				M3_sel_var:="10";--2
 				M4_sel_var:=A1_sig;--3
 				M5_sel_var:=A2_sig;--3
-				M6_sel_var:="0";--1
+				M6_sel_var:="1";--1
 				M7_sel_var:="0";--1
 				--**
 				--"001";--3			 PC<(PC)+1
